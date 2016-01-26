@@ -64,7 +64,7 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	_gitHubStore2.default.retrieveEvents('christophrowley').then(function () {
+	_gitHubStore2.default.retrieveEvents('christophrowley', 15).then(function () {
 	  return _reactDom2.default.render(_react2.default.createElement(_App2.default, null), document.getElementById('app-container'));
 	});
 
@@ -19699,8 +19699,8 @@
 	var _events = [];
 
 	var gitHubStore = (0, _objectAssign2.default)({}, _events3.default.EventEmitter.prototype, {
-		retrieveEvents: function retrieveEvents(username) {
-			return _gitHubApiService2.default.getEvents(username, 10).then(function (val) {
+		retrieveEvents: function retrieveEvents(username, duration) {
+			return _gitHubApiService2.default.getEvents(username, duration).then(function (val) {
 				return _events = val;
 			});
 		},
@@ -20677,13 +20677,14 @@
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function getEvents(username, duration) {
+		console.log('app ' + username + " " + duration);
 		return _gitHubStore2.default.getEvents(username, duration);
 	}
 
 	var App = _react2.default.createClass({
 		displayName: 'App',
 		getInitialState: function getInitialState() {
-			return { events: getEvents() };
+			return { events: getEvents('christophrowley', 15) };
 		},
 		componentWillMount: function componentWillMount() {
 			_gitHubStore2.default.addChangeListener(this._onChange);
@@ -20709,7 +20710,7 @@
 			return _react2.default.createElement(
 				'div',
 				null,
-				_react2.default.createElement(_reactChartjs2.default.Line, { data: chartData })
+				_react2.default.createElement(_reactChartjs2.default.Bar, { data: chartData })
 			);
 		}
 	});

@@ -6,12 +6,13 @@ import gitHubStore from '../stores/gitHubStore.js';
 
 
 function getEvents( username, duration ) {
+	console.log( 'app ' + username + " " + duration );
 	return gitHubStore.getEvents( username, duration );
 }
 
 var App = React.createClass({
 	getInitialState() {
-		return { events: getEvents() };
+		return { events: getEvents( 'christophrowley', 15) };
 	},
 
 	componentWillMount() {
@@ -40,7 +41,7 @@ var App = React.createClass({
 		console.log( chartData );
 		return(
 			<div>
-				<ReactChartJs.Line data = {chartData} />
+				<ReactChartJs.Bar data = {chartData} />
 			</div>
 		);
 	}
