@@ -11,7 +11,7 @@ var _events = [];
 var gitHubStore = ObjectAssign( {}, Events.EventEmitter.prototype, {
 
 	retrieveEvents( username ) {
-		return gitHubApiService.getEvents( username ).then( (val) => _events = val );
+		return gitHubApiService.getEvents( username, 10 ).then( (val) => _events = val );
 	},
 
 	getEvents() {

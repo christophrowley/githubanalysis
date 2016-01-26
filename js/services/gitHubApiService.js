@@ -1,48 +1,15 @@
+import 'datejs';
+
+
 var GITHUB_URL = 'https://api.github.com/';
 
-// var gitHubApiService( options ) = {
-// 	_request( path ) {
-// 		return new Promise( function(resolve, reject) {
-// 			function getUrl() {
-// 				var url = GITHUB_URL + path;
-// 				console.log( url );
-// 				return url;
-// 			}
-
-// 			var xhr = new XHMLHttpxhruest();
-// 			xhr.open( 'GET', getURL(), true );
-
-// 			xhr.onload = function() {
-// 				if ( xhr.status === 200 ) {
-// 					resolve( xhr.response );
-// 				} else {
-// 					reject( Error(xhr.response) );
-// 				}
-// 			};
-
-// 			xhr.onerror = function() {
-// 				reject( Error("Network error!") );
-// 			};
-
-// 			xhr.send();
-// 		});
-// 	};
-
-// 	this.user() = {
-// 		_this = this;
-// 		function repos() {
-// 			var url = '/users/christophrowley/repos';
-// 			_this._request(url).then( (response) => console.log(response) );
-// 		}
-
-// 		if( options === 'repos' ) {
-// 			repos();
-// 		}
-// 	};
-// };
-
 var gitHubApiService = {
-	getEvents( username ) {
+	/**
+	 * @param {string} 	username
+	 * @param {int} 		event data for the past x days
+	 * @return {array}	array of objects containing a date and commit	
+	**/
+	getEvents( username, duration ) {
 		if ( username ) {
 			return new Promise( function( resolve, reject ) {
 				function getUrl() {
@@ -55,7 +22,25 @@ var gitHubApiService = {
 
 				xhr.onload = function() {
 					if ( xhr.status === 200 ) {
-						resolve( xhr.response );
+						var dataset = [];
+						for ( var i = 0; i < duration; i++ ) {
+							dataset.push({
+								date: Date.today().add({ days: -i }),
+								commitCount: 0
+							});
+						}
+
+						JSON.parse( xhr.response ).map( function(event) {
+							if ( event.type === 'PushEvent' ) {
+								for( var i = 0; i < dataset.length; i++ ) {
+									if ( Date.equals( Date.parse( event.created_at ).set({ millisecond: 0, second: 0, minute: 0, hour: 0 }), dataset[i].date ) === true ) {
+										dataset[i].commitCount += event.payload.distinct_size;
+									}
+								}
+							}
+						});
+
+						resolve( dataset );
 					} else {
 						reject( Error( xhr.response ) );
 					}
