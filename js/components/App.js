@@ -1,9 +1,12 @@
 import React from 'react';
+import ReactChartJs from 'react-chartjs';
+import 'datejs';
 import gitHubApiService from '../services/gitHubApiService.js';
 import gitHubStore from '../stores/gitHubStore.js';
 
-function getEvents( username ) {
-	return gitHubStore.getEvents( username );
+
+function getEvents( username, duration ) {
+	return gitHubStore.getEvents( username, duration );
 }
 
 var App = React.createClass({
@@ -11,17 +14,7 @@ var App = React.createClass({
 		return { events: getEvents() };
 	},
 
-	_processEvents() {
-		console.log( Date.now() );
-		// this.state.events.map( function(event) {
-		// 	if ( event.type === 'PushEvent' ) {
-		// 		console.log( 'Push event' );
-		// 	}
-		// });
-	},
-
 	componentWillMount() {
-		this._processEvents();
 		gitHubStore.addChangeListener( this._onChange );
 	},
 
@@ -30,13 +23,24 @@ var App = React.createClass({
 	},
 
 	_onChange() {
-		this.setState( getEvents( 'christophrowley' ) );
+		this.setState( getEvents( 'christophrowley', 15 ) );
 	},
 
 	render() {
+		var chartData = {
+			labels: [],
+			datasets: [{
+				data: []
+			}]
+		};
+		this.state.events.map( function(val) {
+			chartData.labels.push( val.date.toString('d/M') );
+			chartData.datasets[0].data.push( val.commitCount );
+		});
+		console.log( chartData );
 		return(
 			<div>
-				{ this.state.events }
+				<ReactChartJs.Line data = {chartData} />
 			</div>
 		);
 	}
