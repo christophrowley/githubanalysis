@@ -12,6 +12,8 @@ var gitHubApiService = {
 	getEvents( username, duration ) {
 		if ( username ) {
 			return new Promise( function( resolve, reject ) {
+				duration = typeof duration === undefined ? 10 : duration; 
+
 				function getUrl() {
 					var url = GITHUB_URL + 'users/' + username + '/events';
 					return url;
@@ -40,7 +42,7 @@ var gitHubApiService = {
 							}
 						});
 
-						resolve( dataset );
+						resolve( dataset.reverse() );
 					} else {
 						reject( Error( xhr.response ) );
 					}

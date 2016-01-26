@@ -5,14 +5,9 @@ import gitHubApiService from '../services/gitHubApiService.js';
 import gitHubStore from '../stores/gitHubStore.js';
 
 
-function getEvents( username, duration ) {
-	console.log( 'app ' + username + " " + duration );
-	return gitHubStore.getEvents( username, duration );
-}
-
 var App = React.createClass({
 	getInitialState() {
-		return { events: getEvents( 'christophrowley', 15) };
+		return { events: gitHubStore.getEvents() };
 	},
 
 	componentWillMount() {
@@ -24,7 +19,7 @@ var App = React.createClass({
 	},
 
 	_onChange() {
-		this.setState( getEvents( 'christophrowley', 15 ) );
+		this.setState( gitHubStore.getEvents() );
 	},
 
 	render() {
@@ -34,14 +29,29 @@ var App = React.createClass({
 				data: []
 			}]
 		};
-		this.state.events.map( function(val) {
-			chartData.labels.push( val.date.toString('d/M') );
-			chartData.datasets[0].data.push( val.commitCount );
+
+		this.state.events.map( function(dataset, index) {
+
+			var datasetIndex = index;
+			var populateLabels = chartData.labels.length === 0 ? true : false;
+			chartData.datasets.push({
+				data: [],
+				username: dataset.username
+			});
+
+			dataset.eventData.map( function(val) {
+				if ( populateLabels ) {
+					chartData.labels.push( val.date.toString('d/M') );
+				}
+				chartData.datasets[datasetIndex].data.push( val.commitCount );
+			});
+
 		});
+
 		console.log( chartData );
 		return(
 			<div>
-				<ReactChartJs.Bar data = {chartData} />
+				<ReactChartJs.Bar data = {chartData} height = {600} width = {1024} />
 			</div>
 		);
 	}

@@ -19699,11 +19699,6 @@
 	var _events = [];
 
 	var gitHubStore = (0, _objectAssign2.default)({}, _events3.default.EventEmitter.prototype, {
-		retrieveEvents: function retrieveEvents(username, duration) {
-			return _gitHubApiService2.default.getEvents(username, duration).then(function (val) {
-				return _events = val;
-			});
-		},
 		getEvents: function getEvents() {
 			return _events;
 		},
@@ -19715,6 +19710,35 @@
 		},
 		removeChangeListener: function removeChangeListener(callback) {
 			this.on(CHANGE_EVENT, callback);
+		},
+
+		/**
+	  * @param {string}
+	  * @param {int}
+	  * @return {object}
+	 **/
+		retrieveEvents: function retrieveEvents(username, duration) {
+			return _gitHubApiService2.default.getEvents(username, duration).then(function (val) {
+				_events.push({
+					username: username.toLowerCase(),
+					eventData: val
+				});
+			});
+		},
+
+		/**
+	  * @param {string}
+	 **/
+		clearEvents: function clearEvents(username) {
+			for (var i = 0; i < _events.length; i++) {
+				if (_events[i].username === username) {
+					delete _events[i];
+					break;
+				}
+			}
+		},
+		clearAllEvents: function clearAllEvents() {
+			_events = [];
 		}
 	});
 
@@ -20416,6 +20440,8 @@
 
 	'use strict';
 
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
@@ -20434,6 +20460,8 @@
 		getEvents: function getEvents(username, duration) {
 			if (username) {
 				return new Promise(function (resolve, reject) {
+					duration = (typeof duration === 'undefined' ? 'undefined' : _typeof(duration)) === undefined ? 10 : duration;
+
 					function getUrl() {
 						var url = GITHUB_URL + 'users/' + username + '/events';
 						return url;
@@ -20462,7 +20490,7 @@
 								}
 							});
 
-							resolve(dataset);
+							resolve(dataset.reverse());
 						} else {
 							reject(Error(xhr.response));
 						}
@@ -20676,15 +20704,10 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	function getEvents(username, duration) {
-		console.log('app ' + username + " " + duration);
-		return _gitHubStore2.default.getEvents(username, duration);
-	}
-
 	var App = _react2.default.createClass({
 		displayName: 'App',
 		getInitialState: function getInitialState() {
-			return { events: getEvents('christophrowley', 15) };
+			return { events: _gitHubStore2.default.getEvents() };
 		},
 		componentWillMount: function componentWillMount() {
 			_gitHubStore2.default.addChangeListener(this._onChange);
@@ -20693,7 +20716,7 @@
 			_gitHubStore2.default.removeChangeListener(this._onchange);
 		},
 		_onChange: function _onChange() {
-			this.setState(getEvents('christophrowley', 15));
+			this.setState(_gitHubStore2.default.getEvents());
 		},
 		render: function render() {
 			var chartData = {
@@ -20702,15 +20725,29 @@
 					data: []
 				}]
 			};
-			this.state.events.map(function (val) {
-				chartData.labels.push(val.date.toString('d/M'));
-				chartData.datasets[0].data.push(val.commitCount);
+
+			this.state.events.map(function (dataset, index) {
+
+				var datasetIndex = index;
+				var populateLabels = chartData.labels.length === 0 ? true : false;
+				chartData.datasets.push({
+					data: [],
+					username: dataset.username
+				});
+
+				dataset.eventData.map(function (val) {
+					if (populateLabels) {
+						chartData.labels.push(val.date.toString('d/M'));
+					}
+					chartData.datasets[datasetIndex].data.push(val.commitCount);
+				});
 			});
+
 			console.log(chartData);
 			return _react2.default.createElement(
 				'div',
 				null,
-				_react2.default.createElement(_reactChartjs2.default.Bar, { data: chartData })
+				_react2.default.createElement(_reactChartjs2.default.Bar, { data: chartData, height: 600, width: 1024 })
 			);
 		}
 	});

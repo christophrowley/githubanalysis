@@ -10,10 +10,6 @@ var _events = [];
 
 var gitHubStore = ObjectAssign( {}, Events.EventEmitter.prototype, {
 
-	retrieveEvents( username, duration ) {
-		return gitHubApiService.getEvents( username, duration ).then( (val) => _events = val );
-	},
-
 	getEvents() {
 		return _events;
 	},
@@ -28,6 +24,36 @@ var gitHubStore = ObjectAssign( {}, Events.EventEmitter.prototype, {
 
 	removeChangeListener( callback ) {
 		this.on( CHANGE_EVENT, callback );
+	},
+
+	/**
+	 * @param {string}
+	 * @param {int}
+	 * @return {object}
+	**/
+	retrieveEvents( username, duration ) {
+		return gitHubApiService.getEvents( username, duration ).then( function(val) {
+			_events.push({
+				username: username.toLowerCase(),
+				eventData: val
+			});
+		});
+	},
+
+	/**
+	 * @param {string}
+	**/
+	clearEvents( username ) {
+		for ( var i = 0; i < _events.length; i++ ) {
+			if ( _events[i].username === username ) {
+				delete _events[i];
+				break;
+			}
+		}
+	},
+
+	clearAllEvents() {
+		_events = [];
 	}
 
 });
