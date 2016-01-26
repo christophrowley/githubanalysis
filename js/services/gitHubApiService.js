@@ -28,7 +28,7 @@ var GITHUB_URL = 'https://api.github.com/';
 // 		});
 // 	};
 
-// 	user( options ) = {
+// 	this.user() = {
 // 		_this = this;
 // 		function repos() {
 // 			var url = '/users/christophrowley/repos';
@@ -42,23 +42,22 @@ var GITHUB_URL = 'https://api.github.com/';
 // };
 
 var gitHubApiService = {
-	getRepos( user ) {
-		if ( user ) {
-			return new Promise( function(resolve, reject) {
+	getEvents( username ) {
+		if ( username ) {
+			return new Promise( function( resolve, reject ) {
 				function getUrl() {
-					var url = GITHUB_URL + 'users/' + user;
-					console.log( url );
+					var url = GITHUB_URL + 'users/' + username + '/events';
 					return url;
 				};
 
 				var xhr = new XMLHttpRequest();
-				xhr.open( 'GET', getUrl(), true );
+				xhr.open('GET', getUrl(), true);
 
 				xhr.onload = function() {
 					if ( xhr.status === 200 ) {
 						resolve( xhr.response );
 					} else {
-						reject( Error(xhr.response) );
+						reject( Error( xhr.response ) );
 					}
 				};
 

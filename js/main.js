@@ -1,5 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import App from './Components/App.js';
+import gitHubStore from './stores/gitHubStore.js';
 
-ReactDOM.render( <App />, document.getElementById('app-container') );
+import App from './components/App.js';
+
+
+gitHubStore.retrieveEvents( 'christophrowley' ).then( () => 
+ReactDOM.render( <App />, document.getElementById('app-container') ) );
