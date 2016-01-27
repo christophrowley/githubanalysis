@@ -20778,6 +20778,10 @@
 
 	var _gitHubStore2 = _interopRequireDefault(_gitHubStore);
 
+	var _NameTag = __webpack_require__(181);
+
+	var _NameTag2 = _interopRequireDefault(_NameTag);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	var App = _react2.default.createClass({
@@ -20859,21 +20863,31 @@
 			}
 		},
 		render: function render() {
-			var dta = this.state.chartData;
-			console.log(dta);
+			var data = this.state.chartData;
+			console.log(data);
+
 			var chartOptions = {
 				scaleFontColor: '#fff'
 			};
+
 			return _react2.default.createElement(
 				'div',
 				null,
-				this.state.events !== undefined ? _react2.default.createElement(_reactChartjs2.default.Bar, { data: dta, height: 600, options: chartOptions, width: 1024 }) : '',
-				_react2.default.createElement('textarea', {
-					ref: 'addUser',
-					value: this.state.newUser,
-					onChange: this._onTextChange,
-					onKeyDown: this._onKeyDown
-				})
+				this.state.events !== undefined ? _react2.default.createElement(_reactChartjs2.default.Bar, { data: data, height: 600, options: chartOptions, width: 1024 }) : '',
+				_react2.default.createElement(
+					'div',
+					{ className: 'nametags' },
+					this.state.events !== undefined ? this.state.events.map(function (event, index) {
+						return _react2.default.createElement(_NameTag2.default, { key: index, username: event.username });
+					}) : '',
+					_react2.default.createElement('textarea', {
+						rows: 1,
+						ref: 'addUser',
+						value: this.state.newUser,
+						onChange: this._onTextChange,
+						onKeyDown: this._onKeyDown
+					})
+				)
 			);
 		}
 	});
@@ -24548,6 +24562,39 @@
 
 	module.exports = vars.createClass('Radar', ['getPointsAtEvent']);
 
+
+/***/ },
+/* 181 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	var NameTag = _react2.default.createClass({
+		displayName: 'NameTag',
+		render: function render() {
+			return _react2.default.createElement(
+				'div',
+				{ className: 'tag' },
+				_react2.default.createElement(
+					'h1',
+					null,
+					this.props.username
+				)
+			);
+		}
+	});
+
+	exports.default = NameTag;
 
 /***/ }
 /******/ ]);

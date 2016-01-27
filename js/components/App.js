@@ -3,6 +3,7 @@ import ReactChartJs from 'react-chartjs';
 import 'datejs';
 import gitHubActions from '../actions/gitHubActions.js';
 import gitHubStore from '../stores/gitHubStore.js';
+import NameTag from '../components/NameTag.js';
 
 
 var App = React.createClass({
@@ -86,23 +87,33 @@ var App = React.createClass({
 	},
 
 	render() {
-		var dta = this.state.chartData;
-		console.log( dta );
+		var data = this.state.chartData;
+		console.log( data );
+
 		var chartOptions = {
 			scaleFontColor: '#fff'
-		}
+		};
+
 		return(
 			<div>
 				{ ( this.state.events !== undefined ) ?
-					<ReactChartJs.Bar data = {dta} height = {600} options = {chartOptions} width = {1024} /> : ''
+					<ReactChartJs.Bar data = {data} height = {600} options = {chartOptions} width = {1024} /> : ''
 				}
-				
-				<textarea 
-					ref = 'addUser'
-					value = {this.state.newUser}
-					onChange = {this._onTextChange}
-					onKeyDown = {this._onKeyDown}
-				/>
+				<div className = 'nametags' >
+					{ this.state.events !== undefined ? 
+						this.state.events.map( function(event, index) {
+							return <NameTag key = {index} username = {event.username} />;
+						}) : 
+						''
+					}
+					<textarea 
+						rows = {1}
+						ref = 'addUser'
+						value = {this.state.newUser}
+						onChange = {this._onTextChange}
+						onKeyDown = {this._onKeyDown}
+					/>
+				</div>
 			</div>
 		);
 	}

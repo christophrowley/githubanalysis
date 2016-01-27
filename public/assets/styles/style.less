@@ -42,89 +42,38 @@ html, body, #app-container, #app-container div {
 #app-container {
 	background-color: @c-dark;
 
-	canvas {
-		display: block;
-		margin: 0 auto;
-	}
-}
+	.nametags {
+		height: auto;
+		max-width: 1024px;
+		margin: 2rem auto;
 
-header {
-	height: @header-height;
-	width: 100%;
-	line-height: @header-height;
-	padding: 0 2rem;
-	background-color: #fff;
-	font-size: 1.5rem;
-}
-
-#posts {
-	height: auto;
-	.flex-center;
-	.flex-wrap( wrap );
-
-	.post {
-		.flex-item(0 0 20rem);
-		padding: 2rem;
-
-		.post-meta {
-			height: 1.5rem;
-
-			span {
-				display: inline-block;
-				color: rgba(255,255,255,0.8);
-				padding-bottom: 0.5rem;
-				font-size: 0.875rem;
-
-				&.delete {
-					padding: 0.5rem;
-					cursor: pointer;
-					float: right;
-					background-color: rgba(255,255,255,0.2);
-				}
-			}
-		}
-		
-		p, textarea {
-			height: 100%;
-			width: 100%;
-			background-color: @c-light;
-			font-size: 1.125rem;
-			line-height: 1.5rem;
-			border: none;
-			outline: none;
-			font-family: inherit;
+		.tag, textarea {
+			display: inline-block;
+			padding: 1rem;
+			margin-right: 1rem;
 		}
 
-		p {
-			min-height: 7.5rem;
-			box-shadow: 0 2px 2px rgba(0,0,0,0.5);
-			padding: 1rem 1.5rem;
+		.tag {
+			color: rgba(255,255,255,0.8);
+			background-color: rgba(0,0,0,0.1);
+			height: auto;
+			border: 1px solid rgba(0,0,0,0.1);
 		}
 
 		textarea {
-
+			font-size: inherit;
+			height: 3rem;
+			border: 1px solid #fff;
+			outline: none;
+			resize: none;
+			overflow-y: hidden;
+			font-family: inherit;
 		}
 
-		&.new {
+	}
 
-			&.active p {
-				background-image: none;
-				opacity: 1 !important;
-			}
-
-			p {
-				cursor: pointer;
-				opacity: 0.2;
-				background-image: url('../images/plus.png');
-				background-size: 4rem;
-				background-repeat: no-repeat;
-				background-position: center;
-				.transition( opacity 200ms );
-
-				&:hover {
-					opacity: 0.3;
-				}
-			}
-		}
+	canvas {
+		display: block;
+		margin: 0 auto;
 	}
 }

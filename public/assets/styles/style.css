@@ -135,97 +135,33 @@ body,
 #app-container {
   background-color: #282828;
 }
+#app-container .nametags {
+  height: auto;
+  max-width: 1024px;
+  margin: 2rem auto;
+}
+#app-container .nametags .tag,
+#app-container .nametags textarea {
+  display: inline-block;
+  padding: 1rem;
+  margin-right: 1rem;
+}
+#app-container .nametags .tag {
+  color: rgba(255, 255, 255, 0.8);
+  background-color: rgba(0, 0, 0, 0.1);
+  height: auto;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+#app-container .nametags textarea {
+  font-size: inherit;
+  height: 3rem;
+  border: 1px solid #fff;
+  outline: none;
+  resize: none;
+  overflow-y: hidden;
+  font-family: inherit;
+}
 #app-container canvas {
   display: block;
   margin: 0 auto;
-}
-header {
-  height: 4rem;
-  width: 100%;
-  line-height: 4rem;
-  padding: 0 2rem;
-  background-color: #fff;
-  font-size: 1.5rem;
-}
-#posts {
-  height: auto;
-  display: -webkit-box;
-  display: -moz-box;
-  display: -ms-flexbox;
-  display: -webkit-flex;
-  display: flex;
-  -webkit-justify-content: center;
-  -moz-justify-content: center;
-  -o-justify-content: center;
-  -ms-justify-content: center;
-  justify-content: center;
-  -webkit-align-items: center;
-  -moz-align-items: center;
-  -o-align-items: center;
-  -ms-align-items: center;
-  align-items: center;
-  -webkit-flex-wrap: wrap;
-  -moz-flex-wrap: wrap;
-  -o-flex-wrap: wrap;
-  -ms-flex-wrap: wrap;
-  flex-wrap: wrap;
-}
-#posts .post {
-  -webkit-flex: 0 0 20rem;
-  -moz-flex: 0 0 20rem;
-  -o-flex: 0 0 20rem;
-  -ms-flex: 0 0 20rem;
-  flex: 0 0 20rem;
-  padding: 2rem;
-}
-#posts .post .post-meta {
-  height: 1.5rem;
-}
-#posts .post .post-meta span {
-  display: inline-block;
-  color: rgba(255, 255, 255, 0.8);
-  padding-bottom: 0.5rem;
-  font-size: 0.875rem;
-}
-#posts .post .post-meta span.delete {
-  padding: 0.5rem;
-  cursor: pointer;
-  float: right;
-  background-color: rgba(255, 255, 255, 0.2);
-}
-#posts .post p,
-#posts .post textarea {
-  height: 100%;
-  width: 100%;
-  background-color: #fde3a7;
-  font-size: 1.125rem;
-  line-height: 1.5rem;
-  border: none;
-  outline: none;
-  font-family: inherit;
-}
-#posts .post p {
-  min-height: 7.5rem;
-  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.5);
-  padding: 1rem 1.5rem;
-}
-#posts .post.new.active p {
-  background-image: none;
-  opacity: 1 !important;
-}
-#posts .post.new p {
-  cursor: pointer;
-  opacity: 0.2;
-  background-image: url('../images/plus.png');
-  background-size: 4rem;
-  background-repeat: no-repeat;
-  background-position: center;
-  -webkit-transition: opacity 200ms;
-  -moz-transition: opacity 200ms;
-  -o-transition: opacity 200ms;
-  -ms-transition: opacity 200ms;
-  transition: opacity 200ms;
-}
-#posts .post.new p:hover {
-  opacity: 0.3;
 }
