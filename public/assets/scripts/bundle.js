@@ -58,15 +58,17 @@
 
 	var _gitHubStore2 = _interopRequireDefault(_gitHubStore);
 
-	var _App = __webpack_require__(169);
+	var _gitHubActions = __webpack_require__(169);
+
+	var _gitHubActions2 = _interopRequireDefault(_gitHubActions);
+
+	var _App = __webpack_require__(170);
 
 	var _App2 = _interopRequireDefault(_App);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-	_gitHubStore2.default.retrieveEvents('christophrowley', 15).then(function () {
-	  return _reactDom2.default.render(_react2.default.createElement(_App2.default, null), document.getElementById('app-container'));
-	});
+	_reactDom2.default.render(_react2.default.createElement(_App2.default, null), document.getElementById('app-container'));
 
 /***/ },
 /* 1 */
@@ -19669,6 +19671,8 @@
 
 	'use strict';
 
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
@@ -19698,7 +19702,60 @@
 	var CHANGE_EVENT = 'change';
 	var _events = [];
 
+	/**
+	 * @param {string}
+	 * @param {int}
+	 * @return {object}
+	**/
+	function retrieveEvents(username, duration) {
+		if ((typeof duration === 'undefined' ? 'undefined' : _typeof(duration)) === undefined && _events.length === 0) {
+			duration = 10;
+		} else if ((typeof duration === 'undefined' ? 'undefined' : _typeof(duration)) === undefined && _events.length > 0) {
+			duration = _events[0].eventData.length;
+		}
+
+		return _gitHubApiService2.default.getEvents(username, duration).then(function (val) {
+			_events.push({
+				username: username.toLowerCase(),
+				eventData: val
+			});
+		});
+	}
+
 	var gitHubStore = (0, _objectAssign2.default)({}, _events3.default.EventEmitter.prototype, {
+		getProcessedEvents: function getProcessedEvents() {
+			var events = _events;
+
+			var chartData = {
+				labels: [],
+				datasets: []
+			};
+
+			events.map(function (dataset, index) {
+				var datasetIndex = index;
+				var populateLabels = chartData.labels.length === 0 ? true : false;
+				chartData.datasets.push({
+					data: [],
+					label: dataset.username,
+					fillColor: '#F39C12',
+					strokeColor: '#F39C12',
+					pointColor: '#F39C12',
+					pointStrokeColor: '#F39C12',
+					pointHighlightFill: '#F39C12',
+					pointHighlightStroke: '#F39C12'
+				});
+
+				dataset.eventData.map(function (val) {
+					if (populateLabels) {
+						chartData.labels.push(val.date.toString('d/M'));
+					}
+					chartData.datasets[datasetIndex].data.push(val.commitCount);
+				});
+			});
+
+			console.log(chartData);
+			return chartData;
+		},
 		getEvents: function getEvents() {
 			return _events;
 		},
@@ -19714,20 +19771,6 @@
 
 		/**
 	  * @param {string}
-	  * @param {int}
-	  * @return {object}
-	 **/
-		retrieveEvents: function retrieveEvents(username, duration) {
-			return _gitHubApiService2.default.getEvents(username, duration).then(function (val) {
-				_events.push({
-					username: username.toLowerCase(),
-					eventData: val
-				});
-			});
-		},
-
-		/**
-	  * @param {string}
 	 **/
 		clearEvents: function clearEvents(username) {
 			for (var i = 0; i < _events.length; i++) {
@@ -19739,15 +19782,19 @@
 		},
 		clearAllEvents: function clearAllEvents() {
 			_events = [];
+		},
+		logEvents: function logEvents() {
+			console.log(_events);
 		}
 	});
 
-	_appDispatcher2.default.register(function (payload) {
+	_appDispatcher2.default.register(function (action) {
 
 		switch (action.actionType) {
 			case _appConstants2.default.RETRIEVE_EVENTS:
-				_username = action.username;
-				gitHubStore.emitChange();
+				retrieveEvents(action.username, action.duration).then(function () {
+					return gitHubStore.emitChange();
+				});
 				break;
 
 			default:
@@ -20440,8 +20487,6 @@
 
 	'use strict';
 
-	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
-
 	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
@@ -20454,14 +20499,12 @@
 		/**
 	  * @param {string} 	username
 	  * @param {int} 		event data for the past x days
-	  * @return {array}	array of objects containing a date and commit	
+	  * @return {array}	array of objects containing a date and commit
 	 **/
 
 		getEvents: function getEvents(username, duration) {
 			if (username) {
 				return new Promise(function (resolve, reject) {
-					duration = (typeof duration === 'undefined' ? 'undefined' : _typeof(duration)) === undefined ? 10 : duration;
-
 					function getUrl() {
 						var url = GITHUB_URL + 'users/' + username + '/events';
 						return url;
@@ -20489,7 +20532,8 @@
 									}
 								}
 							});
-
+							// console.log( dataset );
+							// console.log( JSON.parse( xhr.response ) );
 							resolve(dataset.reverse());
 						} else {
 							reject(Error(xhr.response));
@@ -20681,6 +20725,38 @@
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _appDispatcher = __webpack_require__(161);
+
+	var _appDispatcher2 = _interopRequireDefault(_appDispatcher);
+
+	var _appConstants = __webpack_require__(168);
+
+	var _appConstants2 = _interopRequireDefault(_appConstants);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	var gitHubActions = {
+	  retrieveEvents: function retrieveEvents(username, duration) {
+	    _appDispatcher2.default.dispatch({
+	      actionType: _appConstants2.default.RETRIEVE_EVENTS,
+	      username: username,
+	      duration: duration
+	    });
+	  }
+	};
+
+	exports.default = gitHubActions;
+
+/***/ },
+/* 170 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
 		value: true
 	});
 
@@ -20688,15 +20764,15 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _reactChartjs = __webpack_require__(170);
+	var _reactChartjs = __webpack_require__(171);
 
 	var _reactChartjs2 = _interopRequireDefault(_reactChartjs);
 
 	__webpack_require__(167);
 
-	var _gitHubApiService = __webpack_require__(166);
+	var _gitHubActions = __webpack_require__(169);
 
-	var _gitHubApiService2 = _interopRequireDefault(_gitHubApiService);
+	var _gitHubActions2 = _interopRequireDefault(_gitHubActions);
 
 	var _gitHubStore = __webpack_require__(159);
 
@@ -20707,7 +20783,11 @@
 	var App = _react2.default.createClass({
 		displayName: 'App',
 		getInitialState: function getInitialState() {
-			return { events: _gitHubStore2.default.getEvents() };
+			return {
+				events: _gitHubActions2.default.retrieveEvents('christophrowley', 15),
+				newUser: '',
+				chartData: null
+			};
 		},
 		componentWillMount: function componentWillMount() {
 			_gitHubStore2.default.addChangeListener(this._onChange);
@@ -20716,23 +20796,28 @@
 			_gitHubStore2.default.removeChangeListener(this._onchange);
 		},
 		_onChange: function _onChange() {
-			this.setState(_gitHubStore2.default.getEvents());
+			this.setState({
+				events: _gitHubStore2.default.getEvents(),
+				chartData: _gitHubStore2.default.getProcessedEvents()
+			});
 		},
-		render: function render() {
+
+		/**
+	  * @param {array}
+	  * @return {object}
+	 **/
+		_generateChartData: function _generateChartData(events) {
 			var chartData = {
 				labels: [],
-				datasets: [{
-					data: []
-				}]
+				datasets: []
 			};
 
-			this.state.events.map(function (dataset, index) {
-
+			events.map(function (dataset, index) {
 				var datasetIndex = index;
 				var populateLabels = chartData.labels.length === 0 ? true : false;
 				chartData.datasets.push({
 					data: [],
-					username: dataset.username
+					label: dataset.username
 				});
 
 				dataset.eventData.map(function (val) {
@@ -20743,11 +20828,52 @@
 				});
 			});
 
-			console.log(chartData);
+			return chartData;
+		},
+		_onTextChange: function _onTextChange(event, value) {
+			this.setState({ newUser: event.target.value });
+		},
+
+		/**
+	  * @param {object}
+	 **/
+		_onKeyDown: function _onKeyDown(event) {
+			switch (event.keyCode) {
+				case 13:
+					// Return key
+					event.preventDefault();
+					var text = this.state.newUser.trim();
+					if (text) {
+						_gitHubActions2.default.retrieveEvents(text, 15);
+					}
+					this.setState({ newUser: "" });
+					break;
+				case 27:
+					// Esc key
+					event.preventDefault();
+					this.setState({
+						active: false,
+						post_text: ''
+					});
+					break;
+			}
+		},
+		render: function render() {
+			var dta = this.state.chartData;
+			console.log(dta);
+			var chartOptions = {
+				scaleFontColor: '#fff'
+			};
 			return _react2.default.createElement(
 				'div',
 				null,
-				_react2.default.createElement(_reactChartjs2.default.Bar, { data: chartData, height: 600, width: 1024 })
+				this.state.events !== undefined ? _react2.default.createElement(_reactChartjs2.default.Bar, { data: dta, height: 600, options: chartOptions, width: 1024 }) : '',
+				_react2.default.createElement('textarea', {
+					ref: 'addUser',
+					value: this.state.newUser,
+					onChange: this._onTextChange,
+					onKeyDown: this._onKeyDown
+				})
 			);
 		}
 	});
@@ -20755,31 +20881,31 @@
 	exports.default = App;
 
 /***/ },
-/* 170 */
+/* 171 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = {
-	  Bar: __webpack_require__(171),
-	  Doughnut: __webpack_require__(175),
-	  Line: __webpack_require__(176),
-	  Pie: __webpack_require__(177),
-	  PolarArea: __webpack_require__(178),
-	  Radar: __webpack_require__(179),
-	  createClass: __webpack_require__(172).createClass
+	  Bar: __webpack_require__(172),
+	  Doughnut: __webpack_require__(176),
+	  Line: __webpack_require__(177),
+	  Pie: __webpack_require__(178),
+	  PolarArea: __webpack_require__(179),
+	  Radar: __webpack_require__(180),
+	  createClass: __webpack_require__(173).createClass
 	};
 
 
 /***/ },
-/* 171 */
+/* 172 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var vars = __webpack_require__(172);
+	var vars = __webpack_require__(173);
 
 	module.exports = vars.createClass('Bar', ['getBarsAtEvent']);
 
 
 /***/ },
-/* 172 */
+/* 173 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = {
@@ -20831,7 +20957,7 @@
 	    };
 
 	    classData.initializeChart = function(nextProps) {
-	      var Chart = __webpack_require__(173);
+	      var Chart = __webpack_require__(174);
 	      var el = this.getDOMNode();
 	      var ctx = el.getContext("2d");
 	      var chart = new Chart(ctx)[chartType](nextProps.data, nextProps.options || {});
@@ -20889,7 +21015,7 @@
 
 
 /***/ },
-/* 173 */
+/* 174 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/*!
@@ -21196,7 +21322,7 @@
 				//Method for warning of errors
 				if (window.console && typeof window.console.warn == "function") console.warn(str);
 			},
-			amd = helpers.amd = ("function" == 'function' && __webpack_require__(174)),
+			amd = helpers.amd = ("function" == 'function' && __webpack_require__(175)),
 			//-- Math methods
 			isNumber = helpers.isNumber = function(n){
 				return !isNaN(parseFloat(n)) && isFinite(n);
@@ -24371,7 +24497,7 @@
 	}).call(this);
 
 /***/ },
-/* 174 */
+/* 175 */
 /***/ function(module, exports) {
 
 	/* WEBPACK VAR INJECTION */(function(__webpack_amd_options__) {module.exports = __webpack_amd_options__;
@@ -24379,46 +24505,46 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, {}))
 
 /***/ },
-/* 175 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var vars = __webpack_require__(172);
-
-	module.exports = vars.createClass('Doughnut', ['getSegmentsAtEvent']);
-
-
-/***/ },
 /* 176 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var vars = __webpack_require__(172);
+	var vars = __webpack_require__(173);
 
-	module.exports = vars.createClass('Line', ['getPointsAtEvent']);
+	module.exports = vars.createClass('Doughnut', ['getSegmentsAtEvent']);
 
 
 /***/ },
 /* 177 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var vars = __webpack_require__(172);
+	var vars = __webpack_require__(173);
 
-	module.exports = vars.createClass('Pie', ['getSegmentsAtEvent']);
+	module.exports = vars.createClass('Line', ['getPointsAtEvent']);
 
 
 /***/ },
 /* 178 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var vars = __webpack_require__(172);
+	var vars = __webpack_require__(173);
 
-	module.exports = vars.createClass('PolarArea', ['getSegmentsAtEvent']);
+	module.exports = vars.createClass('Pie', ['getSegmentsAtEvent']);
 
 
 /***/ },
 /* 179 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var vars = __webpack_require__(172);
+	var vars = __webpack_require__(173);
+
+	module.exports = vars.createClass('PolarArea', ['getSegmentsAtEvent']);
+
+
+/***/ },
+/* 180 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var vars = __webpack_require__(173);
 
 	module.exports = vars.createClass('Radar', ['getPointsAtEvent']);
 

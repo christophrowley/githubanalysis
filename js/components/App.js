@@ -1,13 +1,17 @@
 import React from 'react';
 import ReactChartJs from 'react-chartjs';
 import 'datejs';
-import gitHubApiService from '../services/gitHubApiService.js';
+import gitHubActions from '../actions/gitHubActions.js';
 import gitHubStore from '../stores/gitHubStore.js';
 
 
 var App = React.createClass({
 	getInitialState() {
-		return { events: gitHubStore.getEvents() };
+		return {
+			events: gitHubActions.retrieveEvents('christophrowley', 15),
+			newUser: '',
+			chartData: null
+		};
 	},
 
 	componentWillMount() {
@@ -19,24 +23,28 @@ var App = React.createClass({
 	},
 
 	_onChange() {
-		this.setState( gitHubStore.getEvents() );
+		this.setState({
+			events: gitHubStore.getEvents(),
+			chartData: gitHubStore.getProcessedEvents()
+		});
 	},
 
-	render() {
+	/**
+	 * @param {array}
+	 * @return {object}
+	**/ 
+	_generateChartData( events ) {
 		var chartData = {
 			labels: [],
-			datasets: [{
-				data: []
-			}]
+			datasets: []
 		};
 
-		this.state.events.map( function(dataset, index) {
-
+		events.map( function(dataset, index) {
 			var datasetIndex = index;
 			var populateLabels = chartData.labels.length === 0 ? true : false;
 			chartData.datasets.push({
 				data: [],
-				username: dataset.username
+				label: dataset.username
 			});
 
 			dataset.eventData.map( function(val) {
@@ -45,13 +53,56 @@ var App = React.createClass({
 				}
 				chartData.datasets[datasetIndex].data.push( val.commitCount );
 			});
-
 		});
 
-		console.log( chartData );
+		return chartData;
+	},
+
+	_onTextChange( event, value ) {
+		this.setState({ newUser: event.target.value });
+	},
+
+	/**
+	 * @param {object}
+	**/
+	_onKeyDown( event ) {
+		switch ( event.keyCode ) {
+			case 13: // Return key
+				event.preventDefault();
+				var text = this.state.newUser.trim();
+				if ( text ) {
+					gitHubActions.retrieveEvents( text, 15 );
+				}
+				this.setState({ newUser: "" });
+				break;
+			case 27: // Esc key
+				event.preventDefault();
+				this.setState({
+					active: false,
+					post_text: ''
+				});
+				break;
+		}
+	},
+
+	render() {
+		var dta = this.state.chartData;
+		console.log( dta );
+		var chartOptions = {
+			scaleFontColor: '#fff'
+		}
 		return(
 			<div>
-				<ReactChartJs.Bar data = {chartData} height = {600} width = {1024} />
+				{ ( this.state.events !== undefined ) ?
+					<ReactChartJs.Bar data = {dta} height = {600} options = {chartOptions} width = {1024} /> : ''
+				}
+				
+				<textarea 
+					ref = 'addUser'
+					value = {this.state.newUser}
+					onChange = {this._onTextChange}
+					onKeyDown = {this._onKeyDown}
+				/>
 			</div>
 		);
 	}

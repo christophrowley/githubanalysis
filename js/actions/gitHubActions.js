@@ -3,10 +3,11 @@ import appConstants from '../constants/appConstants.js';
 
 
 var gitHubActions = {
-  pullUserData() {
+  retrieveEvents( username, duration ) {
     appDispatcher.dispatch({
       actionType: appConstants.RETRIEVE_EVENTS,
-      username: username
+      username: username,
+      duration: duration
     });
   }
 };

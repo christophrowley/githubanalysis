@@ -7,13 +7,11 @@ var gitHubApiService = {
 	/**
 	 * @param {string} 	username
 	 * @param {int} 		event data for the past x days
-	 * @return {array}	array of objects containing a date and commit	
+	 * @return {array}	array of objects containing a date and commit
 	**/
 	getEvents( username, duration ) {
 		if ( username ) {
 			return new Promise( function( resolve, reject ) {
-				duration = typeof duration === undefined ? 10 : duration; 
-
 				function getUrl() {
 					var url = GITHUB_URL + 'users/' + username + '/events';
 					return url;
@@ -41,7 +39,8 @@ var gitHubApiService = {
 								}
 							}
 						});
-
+						// console.log( dataset );
+						// console.log( JSON.parse( xhr.response ) );
 						resolve( dataset.reverse() );
 					} else {
 						reject( Error( xhr.response ) );

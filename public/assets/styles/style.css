@@ -133,7 +133,11 @@ body,
   overflow-x: hidden;
 }
 #app-container {
-  background-color: #22313f;
+  background-color: #282828;
+}
+#app-container canvas {
+  display: block;
+  margin: 0 auto;
 }
 header {
   height: 4rem;

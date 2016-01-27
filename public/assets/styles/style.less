@@ -11,7 +11,7 @@ q:before, q:after, blockquote:before, blockquote:after { content: ""; }
 */
 
 	@global-font: 'Inconsolata', 'Courier';
-	@c-dark: #22313F;
+	@c-dark: rgb(40,40,40);
 	@c-light: #FDE3A7;
 
 	@header-height: 4rem;
@@ -41,6 +41,11 @@ html, body, #app-container, #app-container div {
 
 #app-container {
 	background-color: @c-dark;
+
+	canvas {
+		display: block;
+		margin: 0 auto;
+	}
 }
 
 header {
