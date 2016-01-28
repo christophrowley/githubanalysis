@@ -4,13 +4,13 @@ import 'datejs';
 import gitHubActions from '../actions/gitHubActions.js';
 import gitHubStore from '../stores/gitHubStore.js';
 import NameTag from '../components/NameTag.js';
+import AddUser from '../components/AddUser.js';
 
 
 var App = React.createClass({
 	getInitialState() {
 		return {
 			events: gitHubActions.retrieveEvents('christophrowley', 15),
-			newUser: '',
 			chartData: null
 		};
 	},
@@ -59,33 +59,6 @@ var App = React.createClass({
 		return chartData;
 	},
 
-	_onTextChange( event, value ) {
-		this.setState({ newUser: event.target.value });
-	},
-
-	/**
-	 * @param {object}
-	**/
-	_onKeyDown( event ) {
-		switch ( event.keyCode ) {
-			case 13: // Return key
-				event.preventDefault();
-				var text = this.state.newUser.trim();
-				if ( text ) {
-					gitHubActions.retrieveEvents( text, 15 );
-				}
-				this.setState({ newUser: "" });
-				break;
-			case 27: // Esc key
-				event.preventDefault();
-				this.setState({
-					active: false,
-					post_text: ''
-				});
-				break;
-		}
-	},
-
 	render() {
 		var data = this.state.chartData;
 		console.log( data );
@@ -106,13 +79,7 @@ var App = React.createClass({
 						}) : 
 						''
 					}
-					<textarea 
-						rows = {1}
-						ref = 'addUser'
-						value = {this.state.newUser}
-						onChange = {this._onTextChange}
-						onKeyDown = {this._onKeyDown}
-					/>
+					<AddUser />
 				</div>
 			</div>
 		);

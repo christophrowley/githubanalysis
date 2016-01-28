@@ -20782,6 +20782,10 @@
 
 	var _NameTag2 = _interopRequireDefault(_NameTag);
 
+	var _AddUser = __webpack_require__(182);
+
+	var _AddUser2 = _interopRequireDefault(_AddUser);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	var App = _react2.default.createClass({
@@ -20789,7 +20793,6 @@
 		getInitialState: function getInitialState() {
 			return {
 				events: _gitHubActions2.default.retrieveEvents('christophrowley', 15),
-				newUser: '',
 				chartData: null
 			};
 		},
@@ -20834,34 +20837,6 @@
 
 			return chartData;
 		},
-		_onTextChange: function _onTextChange(event, value) {
-			this.setState({ newUser: event.target.value });
-		},
-
-		/**
-	  * @param {object}
-	 **/
-		_onKeyDown: function _onKeyDown(event) {
-			switch (event.keyCode) {
-				case 13:
-					// Return key
-					event.preventDefault();
-					var text = this.state.newUser.trim();
-					if (text) {
-						_gitHubActions2.default.retrieveEvents(text, 15);
-					}
-					this.setState({ newUser: "" });
-					break;
-				case 27:
-					// Esc key
-					event.preventDefault();
-					this.setState({
-						active: false,
-						post_text: ''
-					});
-					break;
-			}
-		},
 		render: function render() {
 			var data = this.state.chartData;
 			console.log(data);
@@ -20880,13 +20855,7 @@
 					this.state.events !== undefined ? this.state.events.map(function (event, index) {
 						return _react2.default.createElement(_NameTag2.default, { key: index, username: event.username });
 					}) : '',
-					_react2.default.createElement('textarea', {
-						rows: 1,
-						ref: 'addUser',
-						value: this.state.newUser,
-						onChange: this._onTextChange,
-						onKeyDown: this._onKeyDown
-					})
+					_react2.default.createElement(_AddUser2.default, null)
 				)
 			);
 		}
@@ -24595,6 +24564,74 @@
 	});
 
 	exports.default = NameTag;
+
+/***/ },
+/* 182 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _gitHubActions = __webpack_require__(169);
+
+	var _gitHubActions2 = _interopRequireDefault(_gitHubActions);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	var AddUser = _react2.default.createClass({
+		displayName: 'AddUser',
+		getInitialState: function getInitialState() {
+			return {
+				newUser: ''
+			};
+		},
+		_onChange: function _onChange(event, value) {
+			this.setState({ newUser: event.target.value });
+		},
+
+		/**
+	  * @param {object}
+	 **/
+		_onKeyDown: function _onKeyDown(event) {
+			switch (event.keyCode) {
+				case 13:
+					// Return key
+					event.preventDefault();
+					var text = this.state.newUser.trim();
+					if (text) {
+						_gitHubActions2.default.retrieveEvents(text, 15);
+					}
+					this.setState({ newUser: "" });
+					break;
+				case 27:
+					// Esc key
+					event.preventDefault();
+					this.setState({
+						active: false,
+						post_text: ''
+					});
+					break;
+			}
+		},
+		render: function render() {
+			return _react2.default.createElement('textarea', {
+				rows: 1,
+				ref: 'addUser',
+				value: this.state.newUser,
+				onChange: this._onChange,
+				onKeyDown: this._onKeyDown
+			});
+		}
+	});
+
+	exports.default = AddUser;
 
 /***/ }
 /******/ ]);
