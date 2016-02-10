@@ -19689,9 +19689,9 @@
 
 	var _events3 = _interopRequireDefault(_events2);
 
-	var _gitHubApiService = __webpack_require__(166);
+	var _gitHubService = __webpack_require__(166);
 
-	var _gitHubApiService2 = _interopRequireDefault(_gitHubApiService);
+	var _gitHubService2 = _interopRequireDefault(_gitHubService);
 
 	var _appConstants = __webpack_require__(168);
 
@@ -19707,20 +19707,27 @@
 	 * @param {int}
 	 * @return {object}
 	**/
-	function retrieveEvents(username, duration) {
-		if ((typeof duration === 'undefined' ? 'undefined' : _typeof(duration)) === undefined && _events.length === 0) {
-			duration = 10;
-		} else if ((typeof duration === 'undefined' ? 'undefined' : _typeof(duration)) === undefined && _events.length > 0) {
-			duration = _events[0].eventData.length;
-		}
+	function getEvents(username, duration) {
+		duration = (typeof duration === 'undefined' ? 'undefined' : _typeof(duration)) === undefined && _events.length === 0 ? 10 : duration;
 
-		return _gitHubApiService2.default.getEvents(username, duration).then(function (val) {
-			_events.push({
-				username: username.toLowerCase(),
-				eventData: val
-			});
+		return _gitHubService2.default.getEvents(username, duration).then(function (evts) {
+			_events = evts;
+			gitHubStore.emitChange();
+			console.log('get events');
 		});
-	}
+	};
+
+	/**
+	 * @param {string}
+	 * @param {array} _events
+	**/
+	function appendEvents(username, events) {
+		return _gitHubService2.default.appendEvents(username, events).then(function (evts) {
+			_events = evts;
+			gitHubStore.emitChange();
+			console.log('append events');
+		});
+	};
 
 	var gitHubStore = (0, _objectAssign2.default)({}, _events3.default.EventEmitter.prototype, {
 		getProcessedEvents: function getProcessedEvents() {
@@ -19792,10 +19799,13 @@
 
 		switch (action.actionType) {
 			case _appConstants2.default.RETRIEVE_EVENTS:
-				retrieveEvents(action.username, action.duration).then(function () {
-					return gitHubStore.emitChange();
-				});
+				if (_events.length === 0) {
+					getEvents(action.username, action.duration);
+				} else {
+					appendEvents(action.username, _events);
+				}
 				break;
+			case _appConstants2.default.ADD_EVENTS:
 
 			default:
 				return true;
@@ -20495,46 +20505,111 @@
 
 	var GITHUB_URL = 'https://api.github.com/';
 
-	var gitHubApiService = {
+	/**
+	 * @param {string} 
+	 * @return {string}
+	**/
+	function getUrl(username) {
+		if (username === undefined) console.log('Username undefined!');
+		return GITHUB_URL + 'users/' + username.toString().trim() + '/events';
+	};
+
+	/**
+	 * @param {string} 	date string from xhr response
+	 * @param {object} 	date object from bins
+	 * @return {bool}
+	**/
+	function compareDates(eventDate, binDate) {
+		return Date.equals(Date.parse(eventDate).set({ millisecond: 0, second: 0, minute: 0, hour: 0 }), binDate) ? true : false;
+	}
+
+	/**
+	 * @param {int} 		number of days of activity history
+	 * @return {object} 	empty ChartJs object
+	**/
+	function generateChartData(duration) {
+		var chart = {
+			labels: [],
+			datasets: [{
+				label: '',
+				data: []
+			}]
+		};
+		for (var i = 0; i < duration; i++) {
+			chart.labels.push(Date.today().add({ days: i - duration }).toString('d/M'));
+			chart.datasets[0].data.push(0);
+		}
+
+		return chart;
+	};
+
+	/**
+	 * @param {object} 	events object from store
+	 * @return {object} 	extended events object
+	**/
+	function extendEvents(events) {
+		var initData = [];
+		events.labels.forEach(function () {
+			return initData.push(0);
+		});
+		return events.datasets.push({
+			data: initData
+		});
+	};
+
+	/**
+	 * @param {int} 		number of days of activity history
+	 * @return {array} 	array of date objects in reverse chronological order
+	**/
+	function generateDateArray(duration) {
+		var dates = [];
+		for (var i = 0; i < duration; i++) {
+			dates.push(Date.today().add({ days: i - duration }));
+		}
+		return dates;
+	};
+
+	var gitHubService = {
+
 		/**
 	  * @param {string} 	username
 	  * @param {int} 		event data for the past x days
-	  * @return {array}	array of objects containing a date and commit
+	  * @return {object}	ChartJs formatted event history
 	 **/
 
 		getEvents: function getEvents(username, duration) {
-			if (username) {
+			if (username && duration) {
+
 				return new Promise(function (resolve, reject) {
-					function getUrl() {
-						var url = GITHUB_URL + 'users/' + username + '/events';
-						return url;
-					};
 
 					var xhr = new XMLHttpRequest();
-					xhr.open('GET', getUrl(), true);
+					xhr.open('GET', getUrl(username), true);
 
 					xhr.onload = function () {
 						if (xhr.status === 200) {
-							var dataset = [];
+
+							var chartData = generateChartData(duration);
+							var dateBins = generateDateArray(duration);
+
 							for (var i = 0; i < duration; i++) {
-								dataset.push({
-									date: Date.today().add({ days: -i }),
-									commitCount: 0
-								});
+								dateBins.push(Date.today().add({ days: i - duration }));
 							}
 
-							JSON.parse(xhr.response).map(function (event) {
+							JSON.parse(xhr.response).forEach(function (event) {
 								if (event.type === 'PushEvent') {
-									for (var i = 0; i < dataset.length; i++) {
-										if (Date.equals(Date.parse(event.created_at).set({ millisecond: 0, second: 0, minute: 0, hour: 0 }), dataset[i].date) === true) {
-											dataset[i].commitCount += event.payload.distinct_size;
+									for (var i = 0; i < dateBins.length; i++) {
+										var datesMatch = compareDates(event.created_at, dateBins[i]);
+										if (datesMatch) {
+											chartData.datasets[0].data[i] += event.payload.distinct_size;
 										}
 									}
 								}
 							});
-							// console.log( dataset );
-							// console.log( JSON.parse( xhr.response ) );
-							resolve(dataset.reverse());
+
+							chartData.datasets[0].label = username.toString().trim();
+							console.log(chartData);
+
+							resolve(chartData);
 						} else {
 							reject(Error(xhr.response));
 						}
@@ -20547,12 +20622,59 @@
 					xhr.send();
 				});
 			} else {
-				console.log('User not defined!');
+				console.log('User and/or duration not defined!');
+			}
+		},
+
+		/**
+	  * @param {string}	username
+	  * @param {object}	current events object
+	  * @return {object}	ChartJs formatted event history
+	 **/
+		appendEvents: function appendEvents(username, events) {
+			if (username && events) {
+
+				return new Promise(function (resolve, reject) {
+
+					var xhr = new XMLHttpRequest();
+					xhr.open('GET', getUrl(username), true);
+
+					xhr.onload = function () {
+						if (xhr.status === 200) {
+
+							var dateBins = generateDateArray(events.labels.length);
+							var newDatasetIndex = events.datasets.length + 1;
+							events = extendEvents(events);
+
+							JSON.parse(xhr.response).forEach(function (event) {
+								if (event.type === 'PushEvent') {
+									for (var i = 0; i < dateBins.length; i++) {
+										if (compareDates(event.created_at, dateBins[i])) {
+											events.datasets[newDatasetIndex].data[i]++;
+										}
+									}
+								}
+							});
+
+							return events;
+						} else {
+							reject(Error(xhr.response));
+						}
+					};
+
+					xhr.onerror = function () {
+						reject(Error('Network error!'));
+					};
+
+					xhr.send();
+				});
+			} else {
+				console.log('Username or events undefined!');
 			}
 		}
 	};
 
-	exports.default = gitHubApiService;
+	exports.default = gitHubService;
 
 /***/ },
 /* 167 */
@@ -20715,7 +20837,8 @@
 		value: true
 	});
 	exports.default = {
-		RETRIEVE_EVENTS: 'RETRIEVE_EVENTS'
+		RETRIEVE_EVENTS: 'RETRIEVE_EVENTS',
+		ADD_EVENTS: 'ADD_EVENTS'
 	};
 
 /***/ },
@@ -20792,20 +20915,19 @@
 		displayName: 'App',
 		getInitialState: function getInitialState() {
 			return {
-				events: _gitHubActions2.default.retrieveEvents('christophrowley', 15),
-				chartData: null
+				events: {}
 			};
 		},
 		componentWillMount: function componentWillMount() {
 			_gitHubStore2.default.addChangeListener(this._onChange);
+			_gitHubActions2.default.retrieveEvents('christophrowley', 15);
 		},
 		componentWillUnmount: function componentWillUnmount() {
 			_gitHubStore2.default.removeChangeListener(this._onchange);
 		},
 		_onChange: function _onChange() {
 			this.setState({
-				events: _gitHubStore2.default.getEvents(),
-				chartData: _gitHubStore2.default.getProcessedEvents()
+				events: _gitHubStore2.default.getEvents()
 			});
 		},
 
@@ -20838,22 +20960,20 @@
 			return chartData;
 		},
 		render: function render() {
-			var data = this.state.chartData;
-			console.log(data);
-
 			var chartOptions = {
 				scaleFontColor: '#fff'
 			};
+			console.log(this.state.events);
 
 			return _react2.default.createElement(
 				'div',
 				null,
-				this.state.events !== undefined ? _react2.default.createElement(_reactChartjs2.default.Bar, { data: data, height: 600, options: chartOptions, width: 1024 }) : '',
+				this.state.events.hasOwnProperty('datasets') ? _react2.default.createElement(_reactChartjs2.default.Bar, { data: this.state.events, height: 600, options: chartOptions, width: 1024 }) : '',
 				_react2.default.createElement(
 					'div',
 					{ className: 'nametags' },
-					this.state.events !== undefined ? this.state.events.map(function (event, index) {
-						return _react2.default.createElement(_NameTag2.default, { key: index, username: event.username });
+					this.state.events.hasOwnProperty('datasets') ? this.state.events.datasets.forEach(function (dataset, index) {
+						return _react2.default.createElement(_NameTag2.default, { key: index, username: dataset.label });
 					}) : '',
 					_react2.default.createElement(_AddUser2.default, null)
 				)

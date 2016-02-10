@@ -1,7 +1,7 @@
 import ObjectAssign from 'object-assign';
 import AppDispatcher from '../dispatcher/appDispatcher.js';
 import Events from 'events';
-import gitHubApiService from '../services/gitHubApiService.js';
+import gitHubService from '../services/gitHubService.js';
 import appConstants from '../constants/appConstants.js';
 
 
@@ -13,20 +13,27 @@ var _events = [];
  * @param {int}
  * @return {object}
 **/
-function retrieveEvents( username, duration ) {
-	if ( typeof duration === undefined && _events.length === 0 ) {
-		duration = 10;
-	} else if ( typeof duration === undefined && _events.length > 0 ) {
-		duration = _events[0].eventData.length;
-	}
+function getEvents( username, duration ) {
+	duration = typeof duration === undefined && _events.length === 0 ? 10 : duration;
 
-	return gitHubApiService.getEvents( username, duration ).then( function(val) {
-		_events.push({
-			username: username.toLowerCase(),
-			eventData: val
-		});
+	return gitHubService.getEvents( username, duration ).then( function( evts ) {
+		_events = evts;
+		gitHubStore.emitChange();
+		console.log( 'get events' );
 	});
-}
+};
+
+/**
+ * @param {string}
+ * @param {array} _events
+**/
+function appendEvents( username, events ) {
+	return gitHubService.appendEvents( username, events ).then( function( evts ) {
+		_events = evts;
+		gitHubStore.emitChange();
+		console.log( 'append events' );
+	});
+};
 
 var gitHubStore = ObjectAssign( {}, Events.EventEmitter.prototype, {
 
@@ -106,8 +113,14 @@ AppDispatcher.register( function( action ) {
 
 	switch ( action.actionType ) {
 		case appConstants.RETRIEVE_EVENTS:
-			retrieveEvents( action.username, action.duration ).then( () => gitHubStore.emitChange() );
+			if ( _events.length === 0 ) {
+				getEvents( action.username, action.duration );
+			} else {
+				appendEvents( action.username, _events );
+			}
 			break;
+		case appConstants.ADD_EVENTS: 
+
 
 		default:
 			return true;

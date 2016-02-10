@@ -10,13 +10,13 @@ import AddUser from '../components/AddUser.js';
 var App = React.createClass({
 	getInitialState() {
 		return {
-			events: gitHubActions.retrieveEvents('christophrowley', 15),
-			chartData: null
+			events: {},
 		};
 	},
 
 	componentWillMount() {
 		gitHubStore.addChangeListener( this._onChange );
+		gitHubActions.retrieveEvents( 'christophrowley', 15 );
 	},
 
 	componentWillUnmount() {
@@ -25,8 +25,7 @@ var App = React.createClass({
 
 	_onChange() {
 		this.setState({
-			events: gitHubStore.getEvents(),
-			chartData: gitHubStore.getProcessedEvents()
+			events: gitHubStore.getEvents()
 		});
 	},
 
@@ -60,22 +59,20 @@ var App = React.createClass({
 	},
 
 	render() {
-		var data = this.state.chartData;
-		console.log( data );
-
 		var chartOptions = {
 			scaleFontColor: '#fff'
 		};
+		console.log( this.state.events );
 
 		return(
 			<div>
-				{ ( this.state.events !== undefined ) ?
-					<ReactChartJs.Bar data = {data} height = {600} options = {chartOptions} width = {1024} /> : ''
+				{ ( this.state.events.hasOwnProperty( 'datasets' ) ) ?
+					<ReactChartJs.Bar data = {this.state.events} height = {600} options = {chartOptions} width = {1024} /> : ''
 				}
 				<div className = 'nametags' >
-					{ this.state.events !== undefined ? 
-						this.state.events.map( function(event, index) {
-							return <NameTag key = {index} username = {event.username} />;
+					{ this.state.events.hasOwnProperty( 'datasets' ) ? 
+						this.state.events.datasets.forEach( function(dataset, index) {
+							return <NameTag key = {index} username = { dataset.label } />;
 						}) : 
 						''
 					}
