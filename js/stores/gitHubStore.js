@@ -16,8 +16,8 @@ var _events = [];
 function getEvents( username, duration ) {
 	duration = typeof duration === undefined && _events.length === 0 ? 10 : duration;
 
-	return gitHubService.getEvents( username, duration ).then( function( evts ) {
-		_events = evts;
+	return gitHubService.getEvents( username, duration ).then( function( response ) {
+		_events = response;
 		gitHubStore.emitChange();
 		console.log( 'get events' );
 	});
@@ -28,10 +28,10 @@ function getEvents( username, duration ) {
  * @param {array} _events
 **/
 function appendEvents( username, events ) {
-	return gitHubService.appendEvents( username, events ).then( function( evts ) {
-		_events = evts;
-		gitHubStore.emitChange();
+	return gitHubService.appendEvents( username, events ).then( function( response ) {
 		console.log( 'append events' );
+		_events = response;
+		gitHubStore.emitChange();
 	});
 };
 
@@ -116,6 +116,7 @@ AppDispatcher.register( function( action ) {
 			if ( _events.length === 0 ) {
 				getEvents( action.username, action.duration );
 			} else {
+				console.log( 'append events called' );
 				appendEvents( action.username, _events );
 			}
 			break;

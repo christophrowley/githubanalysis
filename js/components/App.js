@@ -1,10 +1,10 @@
 import React from 'react';
-import ReactChartJs from 'react-chartjs';
 import 'datejs';
 import gitHubActions from '../actions/gitHubActions.js';
 import gitHubStore from '../stores/gitHubStore.js';
 import NameTag from '../components/NameTag.js';
 import AddUser from '../components/AddUser.js';
+import CommitChart from '../components/CommitChart.js';
 
 
 var App = React.createClass({
@@ -16,7 +16,7 @@ var App = React.createClass({
 
 	componentWillMount() {
 		gitHubStore.addChangeListener( this._onChange );
-		gitHubActions.retrieveEvents( 'christophrowley', 15 );
+		gitHubActions.retrieveEvents( 'christophrowley', 5 );
 	},
 
 	componentWillUnmount() {
@@ -62,12 +62,22 @@ var App = React.createClass({
 		var chartOptions = {
 			scaleFontColor: '#fff'
 		};
-		console.log( this.state.events );
+
+		// var chartData = {
+		// 	labels: ['a','b','c','d','e'],
+		// 	datasets: [{
+		// 		label: 'set a',
+		// 		data: [1,2,3,4,5]
+		// 	}, {
+		// 		label: 'set b',
+		// 		data: [4,5,6,7,8]
+		// 	}]
+		// };
 
 		return(
 			<div>
-				{ ( this.state.events.hasOwnProperty( 'datasets' ) ) ?
-					<ReactChartJs.Bar data = {this.state.events} height = {600} options = {chartOptions} width = {1024} /> : ''
+				{ this.state.events.hasOwnProperty( 'datasets' ) ? 
+					<CommitChart chartData={this.state.events} chartOptions={chartOptions} /> : '' 
 				}
 				<div className = 'nametags' >
 					{ this.state.events.hasOwnProperty( 'datasets' ) ? 

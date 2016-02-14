@@ -88,9 +88,9 @@ var gitHubService = {
 						var chartData = generateChartData( duration );
 						var dateBins = generateDateArray( duration );
 
-						for ( var i = 0; i < duration; i++ ) {
-							dateBins.push( Date.today().add({ days: (i - duration) }) );
-						}
+						// for ( var i = 0; i < duration; i++ ) {
+						// 	dateBins.push( Date.today().add({ days: (i - duration) }) );
+						// }
 
 						JSON.parse( xhr.response ).forEach( function(event) {
 							if ( event.type === 'PushEvent' ) {
@@ -104,8 +104,8 @@ var gitHubService = {
 						});
 
 						chartData.datasets[0].label = username.toString().trim();
+							
 						console.log( chartData );
-						
 						resolve( chartData );
 					} else {
 						reject( Error( xhr.response ) );
@@ -140,21 +140,29 @@ var gitHubService = {
 				xhr.onload = function() {
 					if( xhr.status === 200 ) {
 
-						var dateBins = generateDateArray( events.labels.length );
-						var newDatasetIndex = events.datasets.length + 1;
-						events = extendEvents( events );
+						// var updatedEvents = extendEvents( events );
+						var initData = [];
+						events.labels.forEach( () => initData.push(0) );
+						events.datasets.push({
+							label: username,
+							data: initData
+						});
 
-						JSON.parse( xhr.response ).forEach( function(event) {
-							if ( event.type === 'PushEvent' ) {
+						var dateBins = generateDateArray( events.labels.length );
+						var newDatasetIndex = events.datasets.length - 1;
+
+						JSON.parse( xhr.response ).forEach( function(obj) {
+							if ( obj.type === 'PushEvent' ) {
 								for ( var i = 0; i < dateBins.length; i++ ) {
-									if ( compareDates( event.created_at, dateBins[i] ) ) {
-										events.datasets[ newDatasetIndex ].data[i]++;
+									var datesMatch = compareDates( obj.created_at, dateBins[i] );
+									if ( datesMatch ) {
+										events.datasets[newDatasetIndex].data[i] += obj.payload.distinct_size;
 									}
 								}
 							}
 						});
 
-						return events;
+						resolve( events );
 					} else {
 						reject( Error(xhr.response) );
 					}

@@ -19710,8 +19710,8 @@
 	function getEvents(username, duration) {
 		duration = (typeof duration === 'undefined' ? 'undefined' : _typeof(duration)) === undefined && _events.length === 0 ? 10 : duration;
 
-		return _gitHubService2.default.getEvents(username, duration).then(function (evts) {
-			_events = evts;
+		return _gitHubService2.default.getEvents(username, duration).then(function (response) {
+			_events = response;
 			gitHubStore.emitChange();
 			console.log('get events');
 		});
@@ -19722,10 +19722,10 @@
 	 * @param {array} _events
 	**/
 	function appendEvents(username, events) {
-		return _gitHubService2.default.appendEvents(username, events).then(function (evts) {
-			_events = evts;
-			gitHubStore.emitChange();
+		return _gitHubService2.default.appendEvents(username, events).then(function (response) {
 			console.log('append events');
+			_events = response;
+			gitHubStore.emitChange();
 		});
 	};
 
@@ -19802,6 +19802,7 @@
 				if (_events.length === 0) {
 					getEvents(action.username, action.duration);
 				} else {
+					console.log('append events called');
 					appendEvents(action.username, _events);
 				}
 				break;
@@ -20591,9 +20592,9 @@
 							var chartData = generateChartData(duration);
 							var dateBins = generateDateArray(duration);
 
-							for (var i = 0; i < duration; i++) {
-								dateBins.push(Date.today().add({ days: i - duration }));
-							}
+							// for ( var i = 0; i < duration; i++ ) {
+							// 	dateBins.push( Date.today().add({ days: (i - duration) }) );
+							// }
 
 							JSON.parse(xhr.response).forEach(function (event) {
 								if (event.type === 'PushEvent') {
@@ -20607,8 +20608,8 @@
 							});
 
 							chartData.datasets[0].label = username.toString().trim();
-							console.log(chartData);
 
+							console.log(chartData);
 							resolve(chartData);
 						} else {
 							reject(Error(xhr.response));
@@ -20642,21 +20643,31 @@
 					xhr.onload = function () {
 						if (xhr.status === 200) {
 
-							var dateBins = generateDateArray(events.labels.length);
-							var newDatasetIndex = events.datasets.length + 1;
-							events = extendEvents(events);
+							// var updatedEvents = extendEvents( events );
+							var initData = [];
+							events.labels.forEach(function () {
+								return initData.push(0);
+							});
+							events.datasets.push({
+								label: username,
+								data: initData
+							});
 
-							JSON.parse(xhr.response).forEach(function (event) {
-								if (event.type === 'PushEvent') {
+							var dateBins = generateDateArray(events.labels.length);
+							var newDatasetIndex = events.datasets.length - 1;
+
+							JSON.parse(xhr.response).forEach(function (obj) {
+								if (obj.type === 'PushEvent') {
 									for (var i = 0; i < dateBins.length; i++) {
-										if (compareDates(event.created_at, dateBins[i])) {
-											events.datasets[newDatasetIndex].data[i]++;
+										var datesMatch = compareDates(obj.created_at, dateBins[i]);
+										if (datesMatch) {
+											events.datasets[newDatasetIndex].data[i] += obj.payload.distinct_size;
 										}
 									}
 								}
 							});
 
-							return events;
+							resolve(events);
 						} else {
 							reject(Error(xhr.response));
 						}
@@ -20887,10 +20898,6 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _reactChartjs = __webpack_require__(171);
-
-	var _reactChartjs2 = _interopRequireDefault(_reactChartjs);
-
 	__webpack_require__(167);
 
 	var _gitHubActions = __webpack_require__(169);
@@ -20901,13 +20908,17 @@
 
 	var _gitHubStore2 = _interopRequireDefault(_gitHubStore);
 
-	var _NameTag = __webpack_require__(181);
+	var _NameTag = __webpack_require__(171);
 
 	var _NameTag2 = _interopRequireDefault(_NameTag);
 
-	var _AddUser = __webpack_require__(182);
+	var _AddUser = __webpack_require__(172);
 
 	var _AddUser2 = _interopRequireDefault(_AddUser);
+
+	var _CommitChart = __webpack_require__(173);
+
+	var _CommitChart2 = _interopRequireDefault(_CommitChart);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -20920,7 +20931,7 @@
 		},
 		componentWillMount: function componentWillMount() {
 			_gitHubStore2.default.addChangeListener(this._onChange);
-			_gitHubActions2.default.retrieveEvents('christophrowley', 15);
+			_gitHubActions2.default.retrieveEvents('christophrowley', 5);
 		},
 		componentWillUnmount: function componentWillUnmount() {
 			_gitHubStore2.default.removeChangeListener(this._onchange);
@@ -20963,12 +20974,22 @@
 			var chartOptions = {
 				scaleFontColor: '#fff'
 			};
-			console.log(this.state.events);
+
+			// var chartData = {
+			// 	labels: ['a','b','c','d','e'],
+			// 	datasets: [{
+			// 		label: 'set a',
+			// 		data: [1,2,3,4,5]
+			// 	}, {
+			// 		label: 'set b',
+			// 		data: [4,5,6,7,8]
+			// 	}]
+			// };
 
 			return _react2.default.createElement(
 				'div',
 				null,
-				this.state.events.hasOwnProperty('datasets') ? _react2.default.createElement(_reactChartjs2.default.Bar, { data: this.state.events, height: 600, options: chartOptions, width: 1024 }) : '',
+				this.state.events.hasOwnProperty('datasets') ? _react2.default.createElement(_CommitChart2.default, { chartData: this.state.events, chartOptions: chartOptions }) : '',
 				_react2.default.createElement(
 					'div',
 					{ className: 'nametags' },
@@ -20987,28 +21008,164 @@
 /* 171 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = {
-	  Bar: __webpack_require__(172),
-	  Doughnut: __webpack_require__(176),
-	  Line: __webpack_require__(177),
-	  Pie: __webpack_require__(178),
-	  PolarArea: __webpack_require__(179),
-	  Radar: __webpack_require__(180),
-	  createClass: __webpack_require__(173).createClass
-	};
+	'use strict';
 
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	var NameTag = _react2.default.createClass({
+		displayName: 'NameTag',
+		render: function render() {
+			return _react2.default.createElement(
+				'div',
+				{ className: 'tag' },
+				_react2.default.createElement(
+					'h1',
+					null,
+					this.props.username
+				)
+			);
+		}
+	});
+
+	exports.default = NameTag;
 
 /***/ },
 /* 172 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var vars = __webpack_require__(173);
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _gitHubActions = __webpack_require__(169);
+
+	var _gitHubActions2 = _interopRequireDefault(_gitHubActions);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	var AddUser = _react2.default.createClass({
+		displayName: 'AddUser',
+		getInitialState: function getInitialState() {
+			return {
+				newUser: ''
+			};
+		},
+		_onChange: function _onChange(event, value) {
+			this.setState({ newUser: event.target.value });
+		},
+
+		/**
+	  * @param {object}
+	 **/
+		_onKeyDown: function _onKeyDown(event) {
+			switch (event.keyCode) {
+				case 13:
+					// Return key
+					event.preventDefault();
+					var text = this.state.newUser.trim();
+					if (text) {
+						_gitHubActions2.default.retrieveEvents(text, 15);
+					}
+					this.setState({ newUser: "" });
+					break;
+				case 27:
+					// Esc key
+					event.preventDefault();
+					this.setState({
+						active: false,
+						post_text: ''
+					});
+					break;
+			}
+		},
+		render: function render() {
+			return _react2.default.createElement('textarea', {
+				rows: 1,
+				ref: 'addUser',
+				value: this.state.newUser,
+				onChange: this._onChange,
+				onKeyDown: this._onKeyDown
+			});
+		}
+	});
+
+	exports.default = AddUser;
+
+/***/ },
+/* 173 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var _reactChartjs = __webpack_require__(174);
+
+	var _reactChartjs2 = _interopRequireDefault(_reactChartjs);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	var CommitChart = _react2.default.createClass({
+		displayName: 'CommitChart',
+		render: function render() {
+			console.log(this.props);
+			return _react2.default.createElement(
+				'div',
+				null,
+				_react2.default.createElement(_reactChartjs2.default.Bar, { data: this.props.chartData, height: 600, options: this.props.chartOptions, width: 1024, redraw: true }),
+				' : \'\''
+			);
+		}
+	});
+
+	exports.default = CommitChart;
+
+/***/ },
+/* 174 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = {
+	  Bar: __webpack_require__(175),
+	  Doughnut: __webpack_require__(179),
+	  Line: __webpack_require__(180),
+	  Pie: __webpack_require__(181),
+	  PolarArea: __webpack_require__(182),
+	  Radar: __webpack_require__(183),
+	  createClass: __webpack_require__(176).createClass
+	};
+
+
+/***/ },
+/* 175 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var vars = __webpack_require__(176);
 
 	module.exports = vars.createClass('Bar', ['getBarsAtEvent']);
 
 
 /***/ },
-/* 173 */
+/* 176 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = {
@@ -21060,7 +21217,7 @@
 	    };
 
 	    classData.initializeChart = function(nextProps) {
-	      var Chart = __webpack_require__(174);
+	      var Chart = __webpack_require__(177);
 	      var el = this.getDOMNode();
 	      var ctx = el.getContext("2d");
 	      var chart = new Chart(ctx)[chartType](nextProps.data, nextProps.options || {});
@@ -21118,7 +21275,7 @@
 
 
 /***/ },
-/* 174 */
+/* 177 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/*!
@@ -21425,7 +21582,7 @@
 				//Method for warning of errors
 				if (window.console && typeof window.console.warn == "function") console.warn(str);
 			},
-			amd = helpers.amd = ("function" == 'function' && __webpack_require__(175)),
+			amd = helpers.amd = ("function" == 'function' && __webpack_require__(178)),
 			//-- Math methods
 			isNumber = helpers.isNumber = function(n){
 				return !isNaN(parseFloat(n)) && isFinite(n);
@@ -24600,7 +24757,7 @@
 	}).call(this);
 
 /***/ },
-/* 175 */
+/* 178 */
 /***/ function(module, exports) {
 
 	/* WEBPACK VAR INJECTION */(function(__webpack_amd_options__) {module.exports = __webpack_amd_options__;
@@ -24608,150 +24765,49 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, {}))
 
 /***/ },
-/* 176 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var vars = __webpack_require__(173);
-
-	module.exports = vars.createClass('Doughnut', ['getSegmentsAtEvent']);
-
-
-/***/ },
-/* 177 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var vars = __webpack_require__(173);
-
-	module.exports = vars.createClass('Line', ['getPointsAtEvent']);
-
-
-/***/ },
-/* 178 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var vars = __webpack_require__(173);
-
-	module.exports = vars.createClass('Pie', ['getSegmentsAtEvent']);
-
-
-/***/ },
 /* 179 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var vars = __webpack_require__(173);
+	var vars = __webpack_require__(176);
 
-	module.exports = vars.createClass('PolarArea', ['getSegmentsAtEvent']);
+	module.exports = vars.createClass('Doughnut', ['getSegmentsAtEvent']);
 
 
 /***/ },
 /* 180 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var vars = __webpack_require__(173);
+	var vars = __webpack_require__(176);
 
-	module.exports = vars.createClass('Radar', ['getPointsAtEvent']);
+	module.exports = vars.createClass('Line', ['getPointsAtEvent']);
 
 
 /***/ },
 /* 181 */
 /***/ function(module, exports, __webpack_require__) {
 
-	'use strict';
+	var vars = __webpack_require__(176);
 
-	Object.defineProperty(exports, "__esModule", {
-		value: true
-	});
+	module.exports = vars.createClass('Pie', ['getSegmentsAtEvent']);
 
-	var _react = __webpack_require__(1);
-
-	var _react2 = _interopRequireDefault(_react);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	var NameTag = _react2.default.createClass({
-		displayName: 'NameTag',
-		render: function render() {
-			return _react2.default.createElement(
-				'div',
-				{ className: 'tag' },
-				_react2.default.createElement(
-					'h1',
-					null,
-					this.props.username
-				)
-			);
-		}
-	});
-
-	exports.default = NameTag;
 
 /***/ },
 /* 182 */
 /***/ function(module, exports, __webpack_require__) {
 
-	'use strict';
+	var vars = __webpack_require__(176);
 
-	Object.defineProperty(exports, "__esModule", {
-		value: true
-	});
+	module.exports = vars.createClass('PolarArea', ['getSegmentsAtEvent']);
 
-	var _react = __webpack_require__(1);
 
-	var _react2 = _interopRequireDefault(_react);
+/***/ },
+/* 183 */
+/***/ function(module, exports, __webpack_require__) {
 
-	var _gitHubActions = __webpack_require__(169);
+	var vars = __webpack_require__(176);
 
-	var _gitHubActions2 = _interopRequireDefault(_gitHubActions);
+	module.exports = vars.createClass('Radar', ['getPointsAtEvent']);
 
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	var AddUser = _react2.default.createClass({
-		displayName: 'AddUser',
-		getInitialState: function getInitialState() {
-			return {
-				newUser: ''
-			};
-		},
-		_onChange: function _onChange(event, value) {
-			this.setState({ newUser: event.target.value });
-		},
-
-		/**
-	  * @param {object}
-	 **/
-		_onKeyDown: function _onKeyDown(event) {
-			switch (event.keyCode) {
-				case 13:
-					// Return key
-					event.preventDefault();
-					var text = this.state.newUser.trim();
-					if (text) {
-						_gitHubActions2.default.retrieveEvents(text, 15);
-					}
-					this.setState({ newUser: "" });
-					break;
-				case 27:
-					// Esc key
-					event.preventDefault();
-					this.setState({
-						active: false,
-						post_text: ''
-					});
-					break;
-			}
-		},
-		render: function render() {
-			return _react2.default.createElement('textarea', {
-				rows: 1,
-				ref: 'addUser',
-				value: this.state.newUser,
-				onChange: this._onChange,
-				onKeyDown: this._onKeyDown
-			});
-		}
-	});
-
-	exports.default = AddUser;
 
 /***/ }
 /******/ ]);
