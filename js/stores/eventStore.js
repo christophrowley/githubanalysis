@@ -1,7 +1,7 @@
 import ObjectAssign from 'object-assign';
-import Events from 'events';
 import AppDispatcher from '../dispatcher/appDispatcher.js';
-import gitHubApiService from '../services/gitHubApiService.js';
+import Events from 'events';
+import gitHubService from '../services/gitHubService.js';
 import appConstants from '../constants/appConstants.js';
 
 
@@ -9,23 +9,71 @@ var CHANGE_EVENT = 'change';
 var _events = [];
 
 /**
- * @param {string} 
- * @param {int} 
+ * @param {string}
+ * @param {int}
+ * @return {object}
 **/
-function retrieveEvents( username, duration ) {
-	if ( _events.length === 0 ) {
-		return new Promise( function( resolve, reject ) {
-			gitHubApiService.getEvents( username, duration );
-		});
-	} else {
-		return new Promise( function( resolve, reject ) {
-			gitHubApiService.appendEvents( username, _events );
-		});
-	}
+function getEvents( username, duration ) {
+	duration = typeof duration === undefined && _events.length === 0 ? 10 : duration;
+
+	return gitHubService.getEvents( username, duration ).then( function( response ) {
+		_events = response;
+		gitHubStore.emitChange();
+		console.log( 'get events' );
+	});
 };
 
+/**
+ * @param {string}
+ * @param {array} _events
+**/
+function appendEvents( username, events ) {
+	return gitHubService.appendEvents( username, events ).then( function( response ) {
+		console.log( 'append events' );
+		_events = response;
+		gitHubStore.emitChange();
+	});
+};
 
-var eventStore = ObjectAssign( {}, Events.EventEmitter.prototype, {
+var gitHubStore = ObjectAssign( {}, Events.EventEmitter.prototype, {
+
+	getProcessedEvents() {
+		var events = _events;
+		
+		var chartData = {
+			labels: [],
+			datasets: []
+		};
+
+		events.map( function(dataset, index) {
+			var datasetIndex = index;
+			var populateLabels = chartData.labels.length === 0 ? true : false;
+			chartData.datasets.push({
+				data: [],
+				label: dataset.username,
+				fillColor: '#F39C12',
+				strokeColor: '#F39C12',
+				pointColor: '#F39C12',
+				pointStrokeColor: '#F39C12',
+				pointHighlightFill: '#F39C12',
+				pointHighlightStroke: '#F39C12'
+			});
+
+			dataset.eventData.map( function(val) {
+				if ( populateLabels ) {
+					chartData.labels.push( val.date.toString('d/M') );
+				}
+				chartData.datasets[datasetIndex].data.push( val.commitCount );
+			});
+		});
+
+		console.log( chartData );
+		return chartData;
+	},
+
+	getEvents() {
+		return _events;
+	},
 
 	emitChange() {
 		this.emit( CHANGE_EVENT );
@@ -39,12 +87,8 @@ var eventStore = ObjectAssign( {}, Events.EventEmitter.prototype, {
 		this.on( CHANGE_EVENT, callback );
 	},
 
-	getEvents() {
-		return _events;
-	},
-
-	/** 
-	 * @param {string} 
+	/**
+	 * @param {string}
 	**/
 	clearEvents( username ) {
 		for ( var i = 0; i < _events.length; i++ ) {
@@ -57,22 +101,32 @@ var eventStore = ObjectAssign( {}, Events.EventEmitter.prototype, {
 
 	clearAllEvents() {
 		_events = [];
+	},
+
+	logEvents() {
+		console.log( _events );
 	}
 
 });
 
-
-AppDispatcher.register( function( action) {
+AppDispatcher.register( function( action ) {
 
 	switch ( action.actionType ) {
 		case appConstants.RETRIEVE_EVENTS:
-			retrieveEvents( action.username, action.duration )..then( (events) => _events = events ).then( () => eventStore.emitChange() );
-		default: 
-			console.log( 'Invalid action.' );
+			if ( _events.length === 0 ) {
+				getEvents( action.username, action.duration );
+			} else {
+				console.log( 'append events called' );
+				appendEvents( action.username, _events );
+			}
+			break;
+		case appConstants.ADD_EVENTS: 
+
+
+		default:
 			return true;
 	}
 
 });
 
-
-export default eventStore;
+export default gitHubStore;

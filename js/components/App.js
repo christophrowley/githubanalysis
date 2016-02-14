@@ -1,7 +1,7 @@
 import React from 'react';
 import 'datejs';
 import gitHubActions from '../actions/gitHubActions.js';
-import gitHubStore from '../stores/gitHubStore.js';
+import eventStore from '../stores/eventStore.js';
 import NameTag from '../components/NameTag.js';
 import AddUser from '../components/AddUser.js';
 import CommitChart from '../components/CommitChart.js';
