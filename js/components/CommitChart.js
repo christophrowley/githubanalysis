@@ -7,7 +7,7 @@ var CommitChart = React.createClass({
 		console.log( this.props );
 		return(
 			<div>
-				<ReactChartJs.Bar data = {this.props.chartData} height = {600} options = {this.props.chartOptions} width = {1024} redraw /> : ''
+				<ReactChartJs.Bar data = {this.props.chartData} height = {600} options = {this.props.chartOptions} width = {1024} redraw />
 			</div>
 		);
 	}
