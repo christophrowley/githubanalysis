@@ -19960,6 +19960,15 @@
 	      actionType: _appConstants2.default.REMOVE_EVENTS,
 	      username: username
 	    });
+	  },
+
+	  /** 
+	   *
+	  **/
+	  clearEvents: function clearEvents() {
+	    _appDispatcher2.default.dispatch({
+	      actionType: _appConstants2.default.CLEAR_EVENTS
+	    });
 	  }
 	};
 
@@ -20447,7 +20456,6 @@
 					appendEvents(action.username, _events);
 				}
 				break;
-			case _appConstants2.default.ADD_EVENTS:
 
 			case _appConstants2.default.REMOVE_EVENTS:
 				_events.datasets.map(function (obj, index) {
@@ -20455,6 +20463,11 @@
 						_events.datasets.splice(index, 1);
 					}
 				});
+				eventStore.emitChange();
+				break;
+
+			case _appConstants2.default.CLEAR_EVENTS:
+				eventStore.clearEvents();
 				eventStore.emitChange();
 				break;
 

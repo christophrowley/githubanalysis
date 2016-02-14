@@ -118,7 +118,6 @@ AppDispatcher.register( function( action ) {
 				appendEvents( action.username, _events );
 			}
 			break;
-		case appConstants.ADD_EVENTS: 
 
 		case appConstants.REMOVE_EVENTS:
 			_events.datasets.map( function(obj, index) {
@@ -126,6 +125,11 @@ AppDispatcher.register( function( action ) {
 					_events.datasets.splice( index, 1 );
 				}
 			});
+			eventStore.emitChange();
+			break;
+
+		case appConstants.CLEAR_EVENTS:
+			eventStore.clearEvents();
 			eventStore.emitChange();
 			break;
 

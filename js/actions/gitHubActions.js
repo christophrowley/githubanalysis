@@ -23,7 +23,16 @@ var gitHubActions = {
       actionType: appConstants.REMOVE_EVENTS,
       username: username
     });
-  }
+  },
+
+  /** 
+   *
+  **/
+  clearEvents() {
+    appDispatcher.dispatch({
+      actionType: appConstants.CLEAR_EVENTS
+    });
+  } 
 };
 
 export default gitHubActions;
