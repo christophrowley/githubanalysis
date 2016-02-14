@@ -26,6 +26,7 @@ var AddUser = React.createClass({
 				}
 				this.setState({ newUser: "" });
 				break;
+				
 			case 27: // Esc key
 				event.preventDefault();
 				this.setState({

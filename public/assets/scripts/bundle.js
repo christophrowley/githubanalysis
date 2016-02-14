@@ -19748,17 +19748,6 @@
 				scaleFontColor: '#fff'
 			};
 
-			// var chartData = {
-			// 	labels: ['a','b','c','d','e'],
-			// 	datasets: [{
-			// 		label: 'set a',
-			// 		data: [1,2,3,4,5]
-			// 	}, {
-			// 		label: 'set b',
-			// 		data: [4,5,6,7,8]
-			// 	}]
-			// };
-
 			return _react2.default.createElement(
 				'div',
 				null,
@@ -19766,7 +19755,8 @@
 				_react2.default.createElement(
 					'div',
 					{ className: 'nametags' },
-					this.state.events.hasOwnProperty('datasets') ? this.state.events.datasets.forEach(function (dataset, index) {
+					this.state.events.hasOwnProperty('datasets') ? this.state.events.datasets.map(function (dataset, index) {
+						console.log(dataset);
 						return _react2.default.createElement(_NameTag2.default, { key: index, username: dataset.label });
 					}) : '',
 					_react2.default.createElement(_AddUser2.default, null)
@@ -19949,11 +19939,26 @@
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	var gitHubActions = {
+	  /** 
+	   * @param {string}
+	   * @param {int} 
+	  **/
+
 	  retrieveEvents: function retrieveEvents(username, duration) {
 	    _appDispatcher2.default.dispatch({
 	      actionType: _appConstants2.default.RETRIEVE_EVENTS,
 	      username: username,
 	      duration: duration
+	    });
+	  },
+
+	  /**
+	   * @param {string}
+	  **/
+	  removeEvents: function removeEvents(username) {
+	    _appDispatcher2.default.dispatch({
+	      actionType: _appConstants2.default.REMOVE_EVENTS,
+	      username: username
 	    });
 	  }
 	};
@@ -20299,7 +20304,8 @@
 	});
 	exports.default = {
 		RETRIEVE_EVENTS: 'RETRIEVE_EVENTS',
-		ADD_EVENTS: 'ADD_EVENTS'
+		REMOVE_EVENTS: 'REMOVE_EVENTS',
+		CLEAR_EVENTS: 'CLEAR_EVENTS'
 	};
 
 /***/ },
@@ -20349,8 +20355,7 @@
 
 		return _gitHubService2.default.getEvents(username, duration).then(function (response) {
 			_events = response;
-			gitHubStore.emitChange();
-			console.log('get events');
+			eventStore.emitChange();
 		});
 	};
 
@@ -20362,11 +20367,11 @@
 		return _gitHubService2.default.appendEvents(username, events).then(function (response) {
 			console.log('append events');
 			_events = response;
-			gitHubStore.emitChange();
+			eventStore.emitChange();
 		});
 	};
 
-	var gitHubStore = (0, _objectAssign2.default)({}, _events3.default.EventEmitter.prototype, {
+	var eventStore = (0, _objectAssign2.default)({}, _events3.default.EventEmitter.prototype, {
 		getProcessedEvents: function getProcessedEvents() {
 			var events = _events;
 
@@ -20439,18 +20444,26 @@
 				if (_events.length === 0) {
 					getEvents(action.username, action.duration);
 				} else {
-					console.log('append events called');
 					appendEvents(action.username, _events);
 				}
 				break;
 			case _appConstants2.default.ADD_EVENTS:
+
+			case _appConstants2.default.REMOVE_EVENTS:
+				_events.datasets.map(function (obj, index) {
+					if (obj.label === action.username) {
+						_events.datasets.splice(index, 1);
+					}
+				});
+				eventStore.emitChange();
+				break;
 
 			default:
 				return true;
 		}
 	});
 
-	exports.default = gitHubStore;
+	exports.default = eventStore;
 
 /***/ },
 /* 168 */
@@ -20918,7 +20931,6 @@
 
 							chartData.datasets[0].label = username.toString().trim();
 
-							console.log(chartData);
 							resolve(chartData);
 						} else {
 							reject(Error(xhr.response));
@@ -21010,11 +21022,19 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
+	var _gitHubActions = __webpack_require__(161);
+
+	var _gitHubActions2 = _interopRequireDefault(_gitHubActions);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	var NameTag = _react2.default.createClass({
 		displayName: 'NameTag',
+		removeUser: function removeUser() {
+			_gitHubActions2.default.removeEvents(this.props.username);
+		},
 		render: function render() {
+			console.log('tag called');
 			return _react2.default.createElement(
 				'div',
 				{ className: 'tag' },
@@ -21022,6 +21042,14 @@
 					'h1',
 					null,
 					this.props.username
+				),
+				_react2.default.createElement(
+					'div',
+					{
+						className: 'remove',
+						onClick: this.removeUser
+					},
+					'X'
 				)
 			);
 		}
@@ -21074,6 +21102,7 @@
 					}
 					this.setState({ newUser: "" });
 					break;
+
 				case 27:
 					// Esc key
 					event.preventDefault();

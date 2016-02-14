@@ -18,8 +18,7 @@ function getEvents( username, duration ) {
 
 	return gitHubService.getEvents( username, duration ).then( function( response ) {
 		_events = response;
-		gitHubStore.emitChange();
-		console.log( 'get events' );
+		eventStore.emitChange();
 	});
 };
 
@@ -31,11 +30,11 @@ function appendEvents( username, events ) {
 	return gitHubService.appendEvents( username, events ).then( function( response ) {
 		console.log( 'append events' );
 		_events = response;
-		gitHubStore.emitChange();
+		eventStore.emitChange();
 	});
 };
 
-var gitHubStore = ObjectAssign( {}, Events.EventEmitter.prototype, {
+var eventStore = ObjectAssign( {}, Events.EventEmitter.prototype, {
 
 	getProcessedEvents() {
 		var events = _events;
@@ -116,12 +115,19 @@ AppDispatcher.register( function( action ) {
 			if ( _events.length === 0 ) {
 				getEvents( action.username, action.duration );
 			} else {
-				console.log( 'append events called' );
 				appendEvents( action.username, _events );
 			}
 			break;
 		case appConstants.ADD_EVENTS: 
 
+		case appConstants.REMOVE_EVENTS:
+			_events.datasets.map( function(obj, index) {
+				if ( obj.label === action.username ) {
+					_events.datasets.splice( index, 1 );
+				}
+			});
+			eventStore.emitChange();
+			break;
 
 		default:
 			return true;
@@ -129,4 +135,4 @@ AppDispatcher.register( function( action ) {
 
 });
 
-export default gitHubStore;
+export default eventStore;

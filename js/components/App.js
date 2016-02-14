@@ -63,17 +63,6 @@ var App = React.createClass({
 			scaleFontColor: '#fff'
 		};
 
-		// var chartData = {
-		// 	labels: ['a','b','c','d','e'],
-		// 	datasets: [{
-		// 		label: 'set a',
-		// 		data: [1,2,3,4,5]
-		// 	}, {
-		// 		label: 'set b',
-		// 		data: [4,5,6,7,8]
-		// 	}]
-		// };
-
 		return(
 			<div>
 				{ this.state.events.hasOwnProperty( 'datasets' ) ? 
@@ -81,7 +70,8 @@ var App = React.createClass({
 				}
 				<div className = 'nametags' >
 					{ this.state.events.hasOwnProperty( 'datasets' ) ? 
-						this.state.events.datasets.forEach( function(dataset, index) {
+						this.state.events.datasets.map( function(dataset, index) {
+							console.log( dataset );
 							return <NameTag key = {index} username = { dataset.label } />;
 						}) : 
 						''

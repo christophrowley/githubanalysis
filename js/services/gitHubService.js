@@ -105,7 +105,6 @@ var gitHubService = {
 
 						chartData.datasets[0].label = username.toString().trim();
 							
-						console.log( chartData );
 						resolve( chartData );
 					} else {
 						reject( Error( xhr.response ) );
