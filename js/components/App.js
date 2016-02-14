@@ -5,6 +5,7 @@ import eventStore from '../stores/eventStore.js';
 import NameTag from '../components/NameTag.js';
 import AddUser from '../components/AddUser.js';
 import CommitChart from '../components/CommitChart.js';
+import chartColors from '../constants/chartColors.js';
 
 
 var App = React.createClass({
@@ -63,6 +64,8 @@ var App = React.createClass({
 			scaleFontColor: '#fff'
 		};
 
+		console.log( )
+
 		return(
 			<div>
 				{ this.state.events.hasOwnProperty( 'datasets' ) ? 
@@ -71,8 +74,7 @@ var App = React.createClass({
 				<div className = 'nametags' >
 					{ this.state.events.hasOwnProperty( 'datasets' ) ? 
 						this.state.events.datasets.map( function(dataset, index) {
-							console.log( dataset );
-							return <NameTag key = {index} username = { dataset.label } />;
+							return <NameTag key = {index} username = { dataset.label } col = {chartColors[index].solid} />;
 						}) : 
 						''
 					}

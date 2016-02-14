@@ -1,3 +1,4 @@
+import chartColors from '../constants/chartColors.js';
 import 'datejs';
 
 
@@ -31,11 +32,13 @@ function generateChartData( duration ) {
 		labels: [],
 		datasets: [{
 			label: '',
+			fillColor: chartColors[0].solid,
 			data: []
 		}]
 	};
+
 	for ( var i = 0; i < duration; i++ ) {
-		chart.labels.push( Date.today().add({ days: (i - duration) }).toString('d/M') );
+		chart.labels.push( Date.today().add({ days: (i + 1 - duration) }).toString('d/M') );
 		chart.datasets[0].data.push( 0 );
 	}
 
@@ -61,7 +64,7 @@ function extendEvents( events ) {
 function generateDateArray( duration ) {
 	var dates = [];
 	for ( var i = 0; i < duration; i++ ) {
-		dates.push( Date.today().add({ days: (i - duration) }) );
+		dates.push( Date.today().add({ days: (i + 1 - duration) }) );
 	}
 	return dates;
 };
@@ -87,10 +90,6 @@ var gitHubService = {
 						 
 						var chartData = generateChartData( duration );
 						var dateBins = generateDateArray( duration );
-
-						// for ( var i = 0; i < duration; i++ ) {
-						// 	dateBins.push( Date.today().add({ days: (i - duration) }) );
-						// }
 
 						JSON.parse( xhr.response ).forEach( function(event) {
 							if ( event.type === 'PushEvent' ) {
@@ -141,14 +140,15 @@ var gitHubService = {
 
 						// var updatedEvents = extendEvents( events );
 						var initData = [];
+						var newDatasetIndex = events.datasets.length;
 						events.labels.forEach( () => initData.push(0) );
 						events.datasets.push({
 							label: username,
+							fillColor: chartColors[newDatasetIndex].solid,
 							data: initData
 						});
 
 						var dateBins = generateDateArray( events.labels.length );
-						var newDatasetIndex = events.datasets.length - 1;
 
 						JSON.parse( xhr.response ).forEach( function(obj) {
 							if ( obj.type === 'PushEvent' ) {

@@ -19681,17 +19681,21 @@
 
 	var _eventStore2 = _interopRequireDefault(_eventStore);
 
-	var _NameTag = __webpack_require__(171);
+	var _NameTag = __webpack_require__(172);
 
 	var _NameTag2 = _interopRequireDefault(_NameTag);
 
-	var _AddUser = __webpack_require__(172);
+	var _AddUser = __webpack_require__(173);
 
 	var _AddUser2 = _interopRequireDefault(_AddUser);
 
-	var _CommitChart = __webpack_require__(173);
+	var _CommitChart = __webpack_require__(174);
 
 	var _CommitChart2 = _interopRequireDefault(_CommitChart);
+
+	var _chartColors = __webpack_require__(171);
+
+	var _chartColors2 = _interopRequireDefault(_chartColors);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -19748,6 +19752,8 @@
 				scaleFontColor: '#fff'
 			};
 
+			console.log();
+
 			return _react2.default.createElement(
 				'div',
 				null,
@@ -19756,8 +19762,7 @@
 					'div',
 					{ className: 'nametags' },
 					this.state.events.hasOwnProperty('datasets') ? this.state.events.datasets.map(function (dataset, index) {
-						console.log(dataset);
-						return _react2.default.createElement(_NameTag2.default, { key: index, username: dataset.label });
+						return _react2.default.createElement(_NameTag2.default, { key: index, username: dataset.label, col: _chartColors2.default[index].solid });
 					}) : '',
 					_react2.default.createElement(_AddUser2.default, null)
 				)
@@ -20374,7 +20379,6 @@
 	**/
 	function appendEvents(username, events) {
 		return _gitHubService2.default.appendEvents(username, events).then(function (response) {
-			console.log('append events');
 			_events = response;
 			eventStore.emitChange();
 		});
@@ -20837,7 +20841,13 @@
 		value: true
 	});
 
+	var _chartColors = __webpack_require__(171);
+
+	var _chartColors2 = _interopRequireDefault(_chartColors);
+
 	__webpack_require__(160);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	var GITHUB_URL = 'https://api.github.com/';
 
@@ -20868,11 +20878,13 @@
 			labels: [],
 			datasets: [{
 				label: '',
+				fillColor: _chartColors2.default[0].solid,
 				data: []
 			}]
 		};
+
 		for (var i = 0; i < duration; i++) {
-			chart.labels.push(Date.today().add({ days: i - duration }).toString('d/M'));
+			chart.labels.push(Date.today().add({ days: i + 1 - duration }).toString('d/M'));
 			chart.datasets[0].data.push(0);
 		}
 
@@ -20900,7 +20912,7 @@
 	function generateDateArray(duration) {
 		var dates = [];
 		for (var i = 0; i < duration; i++) {
-			dates.push(Date.today().add({ days: i - duration }));
+			dates.push(Date.today().add({ days: i + 1 - duration }));
 		}
 		return dates;
 	};
@@ -20926,10 +20938,6 @@
 
 							var chartData = generateChartData(duration);
 							var dateBins = generateDateArray(duration);
-
-							// for ( var i = 0; i < duration; i++ ) {
-							// 	dateBins.push( Date.today().add({ days: (i - duration) }) );
-							// }
 
 							JSON.parse(xhr.response).forEach(function (event) {
 								if (event.type === 'PushEvent') {
@@ -20979,16 +20987,17 @@
 
 							// var updatedEvents = extendEvents( events );
 							var initData = [];
+							var newDatasetIndex = events.datasets.length;
 							events.labels.forEach(function () {
 								return initData.push(0);
 							});
 							events.datasets.push({
 								label: username,
+								fillColor: _chartColors2.default[newDatasetIndex].solid,
 								data: initData
 							});
 
 							var dateBins = generateDateArray(events.labels.length);
-							var newDatasetIndex = events.datasets.length - 1;
 
 							JSON.parse(xhr.response).forEach(function (obj) {
 								if (obj.type === 'PushEvent') {
@@ -21023,6 +21032,43 @@
 
 /***/ },
 /* 171 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+	var chartColors = [{
+		// blue
+		solid: 'rgba(52, 152, 219,1.0)',
+		trans: 'rgba(52, 152, 219,.7)'
+	}, {
+		// red
+		solid: 'rgba(192, 57, 43,1.0)',
+		trans: 'rgba(192, 57, 43,.8)'
+	}, {
+		// green
+		solid: 'rgba(46, 204, 113,1.0)',
+		trans: 'rgba(46, 204, 113,.8)'
+	}, {
+		// amethyst
+		solid: 'rgba(155, 89, 182,1.0)',
+		trans: 'rgba(155, 89, 182,.8)'
+	}, {
+		// orange
+		solid: 'rgba(243, 156, 18,1.0)',
+		trans: 'rgba(243, 156, 18,.8)'
+	}, {
+		// turquoise
+		solid: 'rgba(26, 188, 156,1.0)',
+		trans: 'rgba(26, 188, 156,.8)'
+	}];
+
+	exports.default = chartColors;
+
+/***/ },
+/* 172 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -21047,10 +21093,9 @@
 			_gitHubActions2.default.removeEvents(this.props.username);
 		},
 		render: function render() {
-			console.log('tag called');
 			return _react2.default.createElement(
 				'div',
-				{ className: 'tag' },
+				{ className: 'tag', style: { background: this.props.col } },
 				_react2.default.createElement(
 					'h1',
 					null,
@@ -21071,7 +21116,7 @@
 	exports.default = NameTag;
 
 /***/ },
-/* 172 */
+/* 173 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -21140,7 +21185,7 @@
 	exports.default = AddUser;
 
 /***/ },
-/* 173 */
+/* 174 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -21153,7 +21198,7 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _reactChartjs = __webpack_require__(174);
+	var _reactChartjs = __webpack_require__(175);
 
 	var _reactChartjs2 = _interopRequireDefault(_reactChartjs);
 
@@ -21169,31 +21214,31 @@
 	exports.default = CommitChart;
 
 /***/ },
-/* 174 */
+/* 175 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = {
-	  Bar: __webpack_require__(175),
-	  Doughnut: __webpack_require__(179),
-	  Line: __webpack_require__(180),
-	  Pie: __webpack_require__(181),
-	  PolarArea: __webpack_require__(182),
-	  Radar: __webpack_require__(183),
-	  createClass: __webpack_require__(176).createClass
+	  Bar: __webpack_require__(176),
+	  Doughnut: __webpack_require__(180),
+	  Line: __webpack_require__(181),
+	  Pie: __webpack_require__(182),
+	  PolarArea: __webpack_require__(183),
+	  Radar: __webpack_require__(184),
+	  createClass: __webpack_require__(177).createClass
 	};
 
 
 /***/ },
-/* 175 */
+/* 176 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var vars = __webpack_require__(176);
+	var vars = __webpack_require__(177);
 
 	module.exports = vars.createClass('Bar', ['getBarsAtEvent']);
 
 
 /***/ },
-/* 176 */
+/* 177 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = {
@@ -21245,7 +21290,7 @@
 	    };
 
 	    classData.initializeChart = function(nextProps) {
-	      var Chart = __webpack_require__(177);
+	      var Chart = __webpack_require__(178);
 	      var el = this.getDOMNode();
 	      var ctx = el.getContext("2d");
 	      var chart = new Chart(ctx)[chartType](nextProps.data, nextProps.options || {});
@@ -21303,7 +21348,7 @@
 
 
 /***/ },
-/* 177 */
+/* 178 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/*!
@@ -21610,7 +21655,7 @@
 				//Method for warning of errors
 				if (window.console && typeof window.console.warn == "function") console.warn(str);
 			},
-			amd = helpers.amd = ("function" == 'function' && __webpack_require__(178)),
+			amd = helpers.amd = ("function" == 'function' && __webpack_require__(179)),
 			//-- Math methods
 			isNumber = helpers.isNumber = function(n){
 				return !isNaN(parseFloat(n)) && isFinite(n);
@@ -24785,7 +24830,7 @@
 	}).call(this);
 
 /***/ },
-/* 178 */
+/* 179 */
 /***/ function(module, exports) {
 
 	/* WEBPACK VAR INJECTION */(function(__webpack_amd_options__) {module.exports = __webpack_amd_options__;
@@ -24793,46 +24838,46 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, {}))
 
 /***/ },
-/* 179 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var vars = __webpack_require__(176);
-
-	module.exports = vars.createClass('Doughnut', ['getSegmentsAtEvent']);
-
-
-/***/ },
 /* 180 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var vars = __webpack_require__(176);
+	var vars = __webpack_require__(177);
 
-	module.exports = vars.createClass('Line', ['getPointsAtEvent']);
+	module.exports = vars.createClass('Doughnut', ['getSegmentsAtEvent']);
 
 
 /***/ },
 /* 181 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var vars = __webpack_require__(176);
+	var vars = __webpack_require__(177);
 
-	module.exports = vars.createClass('Pie', ['getSegmentsAtEvent']);
+	module.exports = vars.createClass('Line', ['getPointsAtEvent']);
 
 
 /***/ },
 /* 182 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var vars = __webpack_require__(176);
+	var vars = __webpack_require__(177);
 
-	module.exports = vars.createClass('PolarArea', ['getSegmentsAtEvent']);
+	module.exports = vars.createClass('Pie', ['getSegmentsAtEvent']);
 
 
 /***/ },
 /* 183 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var vars = __webpack_require__(176);
+	var vars = __webpack_require__(177);
+
+	module.exports = vars.createClass('PolarArea', ['getSegmentsAtEvent']);
+
+
+/***/ },
+/* 184 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var vars = __webpack_require__(177);
 
 	module.exports = vars.createClass('Radar', ['getPointsAtEvent']);
 

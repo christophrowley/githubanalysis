@@ -8,9 +8,8 @@ var NameTag = React.createClass({
 	},
 
 	render() {
-		console.log( 'tag called' );
 		return(
-			<div className = 'tag'>
+			<div className = 'tag' style = {{background: this.props.col}} >
 				<h1>{ this.props.username }</h1>
 				<div
 					className = {'remove'}

@@ -28,7 +28,6 @@ function getEvents( username, duration ) {
 **/
 function appendEvents( username, events ) {
 	return gitHubService.appendEvents( username, events ).then( function( response ) {
-		console.log( 'append events' );
 		_events = response;
 		eventStore.emitChange();
 	});
