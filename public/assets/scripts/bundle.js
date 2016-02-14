@@ -19703,15 +19703,15 @@
 			};
 		},
 		componentWillMount: function componentWillMount() {
-			gitHubStore.addChangeListener(this._onChange);
+			_eventStore2.default.addChangeListener(this._onChange);
 			_gitHubActions2.default.retrieveEvents('christophrowley', 5);
 		},
 		componentWillUnmount: function componentWillUnmount() {
-			gitHubStore.removeChangeListener(this._onchange);
+			_eventStore2.default.removeChangeListener(this._onchange);
 		},
 		_onChange: function _onChange() {
 			this.setState({
-				events: gitHubStore.getEvents()
+				events: _eventStore2.default.getEvents()
 			});
 		},
 
@@ -21121,12 +21121,7 @@
 		displayName: 'CommitChart',
 		render: function render() {
 			console.log(this.props);
-			return _react2.default.createElement(
-				'div',
-				null,
-				_react2.default.createElement(_reactChartjs2.default.Bar, { data: this.props.chartData, height: 600, options: this.props.chartOptions, width: 1024, redraw: true }),
-				' : \'\''
-			);
+			return _react2.default.createElement(_reactChartjs2.default.Bar, { data: this.props.chartData, height: 600, options: this.props.chartOptions, width: 1024, redraw: true });
 		}
 	});
 

@@ -15,17 +15,17 @@ var App = React.createClass({
 	},
 
 	componentWillMount() {
-		gitHubStore.addChangeListener( this._onChange );
+		eventStore.addChangeListener( this._onChange );
 		gitHubActions.retrieveEvents( 'christophrowley', 5 );
 	},
 
 	componentWillUnmount() {
-		gitHubStore.removeChangeListener( this._onchange );
+		eventStore.removeChangeListener( this._onchange );
 	},
 
 	_onChange() {
 		this.setState({
-			events: gitHubStore.getEvents()
+			events: eventStore.getEvents()
 		});
 	},
 
