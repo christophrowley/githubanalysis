@@ -21120,7 +21120,6 @@
 	var CommitChart = _react2.default.createClass({
 		displayName: 'CommitChart',
 		render: function render() {
-			console.log(this.props);
 			return _react2.default.createElement(_reactChartjs2.default.Bar, { data: this.props.chartData, height: 600, options: this.props.chartOptions, width: 1024, redraw: true });
 		}
 	});
