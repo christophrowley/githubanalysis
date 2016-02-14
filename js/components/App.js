@@ -30,33 +30,8 @@ var App = React.createClass({
 		});
 	},
 
-	/**
-	 * @param {array}
-	 * @return {object}
-	**/ 
-	_generateChartData( events ) {
-		var chartData = {
-			labels: [],
-			datasets: []
-		};
-
-		events.map( function(dataset, index) {
-			var datasetIndex = index;
-			var populateLabels = chartData.labels.length === 0 ? true : false;
-			chartData.datasets.push({
-				data: [],
-				label: dataset.username
-			});
-
-			dataset.eventData.map( function(val) {
-				if ( populateLabels ) {
-					chartData.labels.push( val.date.toString('d/M') );
-				}
-				chartData.datasets[datasetIndex].data.push( val.commitCount );
-			});
-		});
-
-		return chartData;
+	clearEvents() {
+		gitHubActions.clearEvents();
 	},
 
 	render() {
@@ -72,6 +47,7 @@ var App = React.createClass({
 					<CommitChart chartData={this.state.events} chartOptions={chartOptions} /> : '' 
 				}
 				<div className = 'nametags' >
+					<h1>Team: <span onClick = {this.clearEvents} >clear</span></h1>
 					{ this.state.events.hasOwnProperty( 'datasets' ) ? 
 						this.state.events.datasets.map( function(dataset, index) {
 							return <NameTag key = {index} username = { dataset.label } col = {chartColors[index].solid} />;

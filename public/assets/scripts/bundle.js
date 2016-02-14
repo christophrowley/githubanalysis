@@ -19718,34 +19718,8 @@
 				events: _eventStore2.default.getEvents()
 			});
 		},
-
-		/**
-	  * @param {array}
-	  * @return {object}
-	 **/
-		_generateChartData: function _generateChartData(events) {
-			var chartData = {
-				labels: [],
-				datasets: []
-			};
-
-			events.map(function (dataset, index) {
-				var datasetIndex = index;
-				var populateLabels = chartData.labels.length === 0 ? true : false;
-				chartData.datasets.push({
-					data: [],
-					label: dataset.username
-				});
-
-				dataset.eventData.map(function (val) {
-					if (populateLabels) {
-						chartData.labels.push(val.date.toString('d/M'));
-					}
-					chartData.datasets[datasetIndex].data.push(val.commitCount);
-				});
-			});
-
-			return chartData;
+		clearEvents: function clearEvents() {
+			_gitHubActions2.default.clearEvents();
 		},
 		render: function render() {
 			var chartOptions = {
@@ -19761,6 +19735,16 @@
 				_react2.default.createElement(
 					'div',
 					{ className: 'nametags' },
+					_react2.default.createElement(
+						'h1',
+						null,
+						'Team: ',
+						_react2.default.createElement(
+							'span',
+							{ onClick: this.clearEvents },
+							'clear'
+						)
+					),
 					this.state.events.hasOwnProperty('datasets') ? this.state.events.datasets.map(function (dataset, index) {
 						return _react2.default.createElement(_NameTag2.default, { key: index, username: dataset.label, col: _chartColors2.default[index].solid });
 					}) : '',
@@ -20430,19 +20414,7 @@
 		removeChangeListener: function removeChangeListener(callback) {
 			this.on(CHANGE_EVENT, callback);
 		},
-
-		/**
-	  * @param {string}
-	 **/
-		clearEvents: function clearEvents(username) {
-			for (var i = 0; i < _events.length; i++) {
-				if (_events[i].username === username) {
-					delete _events[i];
-					break;
-				}
-			}
-		},
-		clearAllEvents: function clearAllEvents() {
+		clearEvents: function clearEvents() {
 			_events = [];
 		},
 		logEvents: function logEvents() {

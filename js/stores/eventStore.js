@@ -85,19 +85,7 @@ var eventStore = ObjectAssign( {}, Events.EventEmitter.prototype, {
 		this.on( CHANGE_EVENT, callback );
 	},
 
-	/**
-	 * @param {string}
-	**/
-	clearEvents( username ) {
-		for ( var i = 0; i < _events.length; i++ ) {
-			if ( _events[i].username === username ) {
-				delete _events[i];
-				break;
-			}
-		}
-	},
-
-	clearAllEvents() {
+	clearEvents() {
 		_events = [];
 	},
 
@@ -110,7 +98,7 @@ var eventStore = ObjectAssign( {}, Events.EventEmitter.prototype, {
 AppDispatcher.register( function( action ) {
 
 	switch ( action.actionType ) {
-		case appConstants.RETRIEVE_EVENTS:
+		case appConstants.RETRIEVE_EVENTS :
 			if ( _events.length === 0 ) {
 				getEvents( action.username, action.duration );
 			} else {
@@ -118,7 +106,7 @@ AppDispatcher.register( function( action ) {
 			}
 			break;
 
-		case appConstants.REMOVE_EVENTS:
+		case appConstants.REMOVE_EVENTS :
 			_events.datasets.map( function(obj, index) {
 				if ( obj.label === action.username ) {
 					_events.datasets.splice( index, 1 );
@@ -127,7 +115,7 @@ AppDispatcher.register( function( action ) {
 			eventStore.emitChange();
 			break;
 
-		case appConstants.CLEAR_EVENTS:
+		case appConstants.CLEAR_EVENTS :
 			eventStore.clearEvents();
 			eventStore.emitChange();
 			break;
