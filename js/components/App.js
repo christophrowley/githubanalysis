@@ -7,6 +7,7 @@ import AddUser from '../components/AddUser.js';
 import CommitChart from '../components/CommitChart.js';
 import Header from '../components/Header.js';
 import chartColors from '../constants/chartColors.js';
+import chartOptions from '../constants/chartOptions.js';
 
 
 var App = React.createClass({
@@ -36,14 +37,6 @@ var App = React.createClass({
 	},
 
 	render() {
-		var chartOptions = {
-			scaleFontColor: '#2C3E50',
-			scaleFontSize: 16,
-			scaleFontFamily: "'Inconsolata', 'Courier'"
-		};
-
-		console.log( )
-
 		return(
 			<div>
 				<Header />
