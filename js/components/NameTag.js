@@ -10,11 +10,11 @@ var NameTag = React.createClass({
 	render() {
 		return(
 			<div className = 'tag' style = {{background: this.props.col}} >
-				<h1>{ this.props.username }</h1>
+				<h2>{ this.props.username }</h2>
 				<div
 					className = {'remove'}
 					onClick = {( this.removeUser )}
-				>X</div>
+				></div>
 			</div>
 		);
 	}

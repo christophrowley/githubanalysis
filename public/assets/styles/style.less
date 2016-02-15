@@ -14,6 +14,8 @@ q:before, q:after, blockquote:before, blockquote:after { content: ""; }
 	@c-dark: rgb(40,40,40);
 	@c-light: #FDE3A7;
 
+	@max-width: 1280px;
+
 	@header-height: 4rem;
 
 	// ::-webkit-scrollbar {
@@ -40,16 +42,42 @@ html, body, #app-container, #app-container div {
 }
 
 #app-container {
-	background-color: @c-dark;
+	// background-color: @c-dark;
+
+	header {
+		padding: 1.5rem;
+
+		h1 {
+			max-width: @max-width;
+			margin: 0 auto;
+			font-size: 1.5rem;
+		}
+	}
+
+	.chart {
+		background-color: #ECECEC;
+		padding: 2rem 0;
+		height: auto;
+	}
 
 	.nametags {
 		height: auto;
-		max-width: 1024px;
-		margin: 2rem auto;
+		max-width: @max-width;
+		margin: 3rem auto;
+
+		h1 {
+			font-size: 1.5rem;
+			color: #2C3E50 !important;
+			margin-bottom: 2rem;
+
+			span.clear {
+				color: rgb(220,220,220);
+				font-style: italic;
+			}
+		}
 
 		.tag, textarea {
 			display: inline-block;
-			padding: 1rem;
 			margin-right: 1rem;
 		}
 
@@ -57,17 +85,41 @@ html, body, #app-container, #app-container div {
 			color: rgba(255,255,255,0.8);
 			background-color: rgba(0,0,0,0.1);
 			height: auto;
-			border: 1px solid rgba(0,0,0,0.1);
+
+			h2 {
+				padding: 1rem;
+				display: inline-block;
+				margin-right: 0.25rem;
+			}
+
+			.remove {
+				cursor: pointer;
+				display: block;
+				float: right;
+				height: 3rem;
+				width: 3rem;
+				background-image: url('../images/cross.png');
+				background-size: 1rem;
+				background-repeat: no-repeat;
+				background-position: center;
+				background-color: rgba(255,255,255,0.05);
+				border-left: 1px solid rgba(0,0,0,0.03);
+				// opacity: 0.5;
+
+				&:hover {
+					background-color: rgba(255,255,255,0.1);
+				}
+			}
 		}
 
 		textarea {
 			font-size: inherit;
-			height: 3rem;
-			border: 1px solid #fff;
+			border: 1px solid rgb(220,220,220);
 			outline: none;
 			resize: none;
 			overflow-y: hidden;
 			font-family: inherit;
+			padding: 0.9rem 1.25rem;
 		}
 
 	}

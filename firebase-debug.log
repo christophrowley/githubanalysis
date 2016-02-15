@@ -1,0 +1,8 @@
+[debug] ----------------------------------------------------------------------
+[debug] Command:      node /Users/christophrowley/npm-global/bin/firebase deploy
+[debug] Platform:     darwin
+[debug] Node Version: v0.12.7
+[debug] Time:         Sun Feb 14 2016 21:25:26 GMT+0000 (GMT)
+[debug] ----------------------------------------------------------------------
+[debug] 
+[debug] >>> HTTP REQUEST GET https://admin.firebase.com/firebase/githubanalysis/token?token=XXX 

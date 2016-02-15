@@ -14,7 +14,7 @@ var _events = [];
  * @return {object}
 **/
 function getEvents( username, duration ) {
-	duration = typeof duration === undefined && _events.length === 0 ? 10 : duration;
+	duration = typeof duration === undefined && _events.length === 0 ? 7 : duration;
 
 	return gitHubService.getEvents( username, duration ).then( function( response ) {
 		_events = response;

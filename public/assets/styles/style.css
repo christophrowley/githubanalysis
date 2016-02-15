@@ -132,34 +132,72 @@ body,
   font-family: 'Inconsolata', 'Courier';
   overflow-x: hidden;
 }
-#app-container {
-  background-color: #282828;
+#app-container header {
+  padding: 1.5rem;
+}
+#app-container header h1 {
+  max-width: 1280px;
+  margin: 0 auto;
+  font-size: 1.5rem;
+}
+#app-container .chart {
+  background-color: #ECECEC;
+  padding: 2rem 0;
+  height: auto;
 }
 #app-container .nametags {
   height: auto;
-  max-width: 1024px;
-  margin: 2rem auto;
+  max-width: 1280px;
+  margin: 3rem auto;
+}
+#app-container .nametags h1 {
+  font-size: 1.5rem;
+  color: #2C3E50 !important;
+  margin-bottom: 2rem;
+}
+#app-container .nametags h1 span.clear {
+  color: #dcdcdc;
+  font-style: italic;
 }
 #app-container .nametags .tag,
 #app-container .nametags textarea {
   display: inline-block;
-  padding: 1rem;
   margin-right: 1rem;
 }
 #app-container .nametags .tag {
   color: rgba(255, 255, 255, 0.8);
   background-color: rgba(0, 0, 0, 0.1);
   height: auto;
-  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+#app-container .nametags .tag h2 {
+  padding: 1rem;
+  display: inline-block;
+  margin-right: 0.25rem;
+}
+#app-container .nametags .tag .remove {
+  cursor: pointer;
+  display: block;
+  float: right;
+  height: 3rem;
+  width: 3rem;
+  background-image: url('../images/cross.png');
+  background-size: 1rem;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-left: 1px solid rgba(0, 0, 0, 0.03);
+}
+#app-container .nametags .tag .remove:hover {
+  background-color: rgba(255, 255, 255, 0.1);
 }
 #app-container .nametags textarea {
   font-size: inherit;
-  height: 3rem;
-  border: 1px solid #fff;
+  border: 1px solid #dcdcdc;
   outline: none;
   resize: none;
   overflow-y: hidden;
   font-family: inherit;
+  padding: 0.9rem 1.25rem;
 }
 #app-container canvas {
   display: block;

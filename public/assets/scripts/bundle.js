@@ -19693,6 +19693,10 @@
 
 	var _CommitChart2 = _interopRequireDefault(_CommitChart);
 
+	var _Header = __webpack_require__(185);
+
+	var _Header2 = _interopRequireDefault(_Header);
+
 	var _chartColors = __webpack_require__(171);
 
 	var _chartColors2 = _interopRequireDefault(_chartColors);
@@ -19708,7 +19712,7 @@
 		},
 		componentWillMount: function componentWillMount() {
 			_eventStore2.default.addChangeListener(this._onChange);
-			_gitHubActions2.default.retrieveEvents('christophrowley', 5);
+			_gitHubActions2.default.retrieveEvents('christophrowley', 7);
 		},
 		componentWillUnmount: function componentWillUnmount() {
 			_eventStore2.default.removeChangeListener(this._onchange);
@@ -19723,7 +19727,9 @@
 		},
 		render: function render() {
 			var chartOptions = {
-				scaleFontColor: '#fff'
+				scaleFontColor: '#2C3E50',
+				scaleFontSize: 16,
+				scaleFontFamily: "'Inconsolata', 'Courier'"
 			};
 
 			console.log();
@@ -19731,6 +19737,7 @@
 			return _react2.default.createElement(
 				'div',
 				null,
+				_react2.default.createElement(_Header2.default, null),
 				this.state.events.hasOwnProperty('datasets') ? _react2.default.createElement(_CommitChart2.default, { chartData: this.state.events, chartOptions: chartOptions }) : '',
 				_react2.default.createElement(
 					'div',
@@ -19741,7 +19748,7 @@
 						'Team: ',
 						_react2.default.createElement(
 							'span',
-							{ onClick: this.clearEvents },
+							{ className: 'clear', onClick: this.clearEvents },
 							'clear'
 						)
 					),
@@ -20349,7 +20356,7 @@
 	 * @return {object}
 	**/
 	function getEvents(username, duration) {
-		duration = (typeof duration === 'undefined' ? 'undefined' : _typeof(duration)) === undefined && _events.length === 0 ? 10 : duration;
+		duration = (typeof duration === 'undefined' ? 'undefined' : _typeof(duration)) === undefined && _events.length === 0 ? 7 : duration;
 
 		return _gitHubService2.default.getEvents(username, duration).then(function (response) {
 			_events = response;
@@ -21069,18 +21076,14 @@
 				'div',
 				{ className: 'tag', style: { background: this.props.col } },
 				_react2.default.createElement(
-					'h1',
+					'h2',
 					null,
 					this.props.username
 				),
-				_react2.default.createElement(
-					'div',
-					{
-						className: 'remove',
-						onClick: this.removeUser
-					},
-					'X'
-				)
+				_react2.default.createElement('div', {
+					className: 'remove',
+					onClick: this.removeUser
+				})
 			);
 		}
 	});
@@ -21149,7 +21152,8 @@
 				ref: 'addUser',
 				value: this.state.newUser,
 				onChange: this._onChange,
-				onKeyDown: this._onKeyDown
+				onKeyDown: this._onKeyDown,
+				placeholder: 'username'
 			});
 		}
 	});
@@ -21179,7 +21183,11 @@
 	var CommitChart = _react2.default.createClass({
 		displayName: 'CommitChart',
 		render: function render() {
-			return _react2.default.createElement(_reactChartjs2.default.Bar, { data: this.props.chartData, height: 600, options: this.props.chartOptions, width: 1024, redraw: true });
+			return _react2.default.createElement(
+				'div',
+				{ className: 'chart' },
+				_react2.default.createElement(_reactChartjs2.default.Bar, { data: this.props.chartData, height: 600, options: this.props.chartOptions, width: 1280, redraw: true })
+			);
 		}
 	});
 
@@ -24853,6 +24861,39 @@
 
 	module.exports = vars.createClass('Radar', ['getPointsAtEvent']);
 
+
+/***/ },
+/* 185 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+		value: true
+	});
+
+	var _react = __webpack_require__(1);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	var Header = _react2.default.createClass({
+		displayName: 'Header',
+		render: function render() {
+			return _react2.default.createElement(
+				'header',
+				null,
+				_react2.default.createElement(
+					'h1',
+					null,
+					'Commit History'
+				)
+			);
+		}
+	});
+
+	exports.default = Header;
 
 /***/ }
 /******/ ]);

@@ -45,6 +45,7 @@ var AddUser = React.createClass({
 				value = {this.state.newUser}
 				onChange = {this._onChange}
 				onKeyDown = {this._onKeyDown}
+				placeholder = {'username'}
 			/>
 		);
 	}

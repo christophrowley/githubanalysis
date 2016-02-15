@@ -5,6 +5,7 @@ import eventStore from '../stores/eventStore.js';
 import NameTag from '../components/NameTag.js';
 import AddUser from '../components/AddUser.js';
 import CommitChart from '../components/CommitChart.js';
+import Header from '../components/Header.js';
 import chartColors from '../constants/chartColors.js';
 
 
@@ -17,7 +18,7 @@ var App = React.createClass({
 
 	componentWillMount() {
 		eventStore.addChangeListener( this._onChange );
-		gitHubActions.retrieveEvents( 'christophrowley', 5 );
+		gitHubActions.retrieveEvents( 'christophrowley', 7 );
 	},
 
 	componentWillUnmount() {
@@ -36,18 +37,21 @@ var App = React.createClass({
 
 	render() {
 		var chartOptions = {
-			scaleFontColor: '#fff'
+			scaleFontColor: '#2C3E50',
+			scaleFontSize: 16,
+			scaleFontFamily: "'Inconsolata', 'Courier'"
 		};
 
 		console.log( )
 
 		return(
 			<div>
+				<Header />
 				{ this.state.events.hasOwnProperty( 'datasets' ) ? 
 					<CommitChart chartData={this.state.events} chartOptions={chartOptions} /> : '' 
 				}
 				<div className = 'nametags' >
-					<h1>Team: <span onClick = {this.clearEvents} >clear</span></h1>
+					<h1>Team: <span className = {'clear'} onClick = {this.clearEvents} >clear</span></h1>
 					{ this.state.events.hasOwnProperty( 'datasets' ) ? 
 						this.state.events.datasets.map( function(dataset, index) {
 							return <NameTag key = {index} username = { dataset.label } col = {chartColors[index].solid} />;
