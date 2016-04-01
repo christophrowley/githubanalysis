@@ -1,6 +1,6 @@
 import React from 'react';
 import gitHubActions from '../actions/gitHubActions.js'
-
+import retrieveLength from '../constants/retrieveLength.js'
 
 var AddUser = React.createClass({
 	getInitialState() {
@@ -22,11 +22,11 @@ var AddUser = React.createClass({
 				event.preventDefault();
 				var text = this.state.newUser.trim();
 				if ( text ) {
-					gitHubActions.retrieveEvents( text, 15 );
+					gitHubActions.retrieveEvents( text, retrieveLength );
 				}
 				this.setState({ newUser: "" });
 				break;
-				
+
 			case 27: // Esc key
 				event.preventDefault();
 				this.setState({
@@ -39,7 +39,7 @@ var AddUser = React.createClass({
 
 	render() {
 		return(
-			<textarea 
+			<textarea
 				rows = {1}
 				ref = 'addUser'
 				value = {this.state.newUser}

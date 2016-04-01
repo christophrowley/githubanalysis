@@ -3,6 +3,7 @@ import AppDispatcher from '../dispatcher/appDispatcher.js';
 import Events from 'events';
 import gitHubService from '../services/gitHubService.js';
 import appConstants from '../constants/appConstants.js';
+import retrieveLength from '../constants/retrieveLength.js'
 
 
 var CHANGE_EVENT = 'change';
@@ -14,7 +15,7 @@ var _events = [];
  * @return {object}
 **/
 function getEvents( username, duration ) {
-	duration = typeof duration === undefined && _events.length === 0 ? 7 : duration;
+	duration = typeof duration === undefined && _events.length === 0 ? retrieveLength : duration;
 
 	return gitHubService.getEvents( username, duration ).then( function( response ) {
 		_events = response;
@@ -37,7 +38,7 @@ var eventStore = ObjectAssign( {}, Events.EventEmitter.prototype, {
 
 	getProcessedEvents() {
 		var events = _events;
-		
+
 		var chartData = {
 			labels: [],
 			datasets: []
